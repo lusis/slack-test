@@ -70,3 +70,16 @@ You can see that our bot handled the message correctly.
 Currently it's not as ergonomic as I'd like. So much depends on how modular your bot code is in being able to run the same message handling code against a test instance. In the `examples` directory there are a couple of test cases.
 
 Additionally, you definitely need to call `time.Sleep` for now in your test code to give time for the messages to work through the various channels and populate. I'd like to add a safer subscription mechanism in the future with a proper timeout mechanism.
+
+If you want to, you can test the existing example in `examples/go-slackbot`:
+```
+# cd examples/go-slackbot
+# go test -v
+=== RUN   TestGlobalMessageHandler
+--- PASS: TestGlobalMessageHandler (2.00s)
+=== RUN   TestHelloMessageHandler
+--- PASS: TestHelloMessageHandler (2.00s)
+PASS
+ok      github.com/lusis/slack-test/examples/go-slackbot        4.005s
+#
+```

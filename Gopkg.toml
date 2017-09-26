@@ -1,6 +1,5 @@
 [[constraint]]
   name = "github.com/lusis/go-slackbot"
-  branch = "context-fix"
 
 
 [[constraint]]

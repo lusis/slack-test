@@ -47,7 +47,7 @@ func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 	if jsonErr != nil {
 		log.Printf("Unable to marshall message: %s", jsonErr.Error())
 	} else {
-		sendToChannel(string(jsonMessage))
+		queueForWebsocket(string(jsonMessage))
 	}
 	_, _ = w.Write([]byte(resp))
 }
@@ -58,30 +58,9 @@ func rtmStartHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error reading body: %s", err.Error())
 		return
 	}
-	ts := slack.JSONTime(1402463766)
 	wsurl := r.Context().Value(ServerWSContextKey).(string)
-	rtmInfo := slack.Info{
-		URL: wsurl,
-		Team: &slack.Team{
-			ID:     "T024BE7LD",
-			Name:   "test slackbot team",
-			Domain: "testdomain.com",
-		},
-		User: &slack.UserDetails{
-			ID:             BotIDFromContext(r.Context()),
-			Name:           BotNameFromContext(r.Context()),
-			Created:        ts,
-			ManualPresence: "true",
-			Prefs:          slack.UserPrefs{},
-		},
-	}
-	webResponse := slack.WebResponse{
-		Ok: true,
-	}
-	fullresponse := fullInfoSlackResponse{
-		rtmInfo,
-		webResponse,
-	}
+
+	fullresponse := generateRTMInfo(r.Context(), wsurl)
 	j, jErr := json.Marshal(fullresponse)
 	if jErr != nil {
 		msg := fmt.Sprintf("Unable to marshal response: %s", jErr.Error())
@@ -111,13 +90,13 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	defer func() { _ = c.Close() }()
 	go handlePendingMessages(c)
 	for {
+		log.Printf("Running websocket")
 		mt, messageBytes, err := c.ReadMessage()
 		if err != nil {
 			log.Printf("read error: %s", err.Error())
 			continue
 		}
 		message := string(messageBytes)
-
 		evt := &slack.Event{}
 		if err := json.Unmarshal(messageBytes, evt); err != nil {
 			log.Printf("Error unmarshalling message: %s", err.Error())
@@ -144,8 +123,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			continue
 		} else {
-			seenMessages = append(seenMessages, message)
-			seenMessageChannel <- message
+			postProcessMessage(message)
 		}
 	}
 }

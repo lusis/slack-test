@@ -1,7 +1,6 @@
 package slacktest
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -16,10 +15,7 @@ import (
 func NewTestServer() *Server {
 	sendMessageChannel = make(chan (string))
 	seenMessageChannel = make(chan (string))
-	s := &Server{
-		SendMessages: sendMessageChannel,
-		SeenFeed:     seenMessageChannel,
-	}
+	s := &Server{}
 	mux := http.NewServeMux()
 	mux.Handle("/ws", contextHandler(s, wsHandler))
 	mux.Handle("/rtm.start", contextHandler(s, rtmStartHandler))
@@ -36,12 +32,34 @@ func NewTestServer() *Server {
 
 // GetSeenMessages returns all messages seen via websocket excluding pings
 func (sts *Server) GetSeenMessages() []string {
-	return seenMessages
+	seenInboundMessages.RLock()
+	m := seenInboundMessages.messages
+	seenInboundMessages.RUnlock()
+	return m
 }
 
-// SawMessage checks if a message was seen
+// SawOutgoingMessage checks if a message was sent to connected websocket clients
+func (sts *Server) SawOutgoingMessage(msg string) bool {
+	seenOutboundMessages.RLock()
+	defer seenOutboundMessages.RUnlock()
+	for _, m := range seenOutboundMessages.messages {
+		evt := &slack.MessageEvent{}
+		jErr := json.Unmarshal([]byte(m), evt)
+		if jErr != nil {
+			continue
+		}
+		if evt.Text == msg {
+			return true
+		}
+	}
+	return false
+}
+
+// SawMessage checks if an incoming message was seen
 func (sts *Server) SawMessage(msg string) bool {
-	for _, m := range seenMessages {
+	seenInboundMessages.RLock()
+	defer seenInboundMessages.RUnlock()
+	for _, m := range seenInboundMessages.messages {
 		evt := &slack.MessageEvent{}
 		jErr := json.Unmarshal([]byte(m), evt)
 		if jErr != nil {
@@ -78,7 +96,7 @@ func (sts *Server) Start() {
 // SendMessageToBot sends a message addressed to the Bot
 func (sts *Server) SendMessageToBot(channel, msg string) {
 	m := slack.Message{}
-	m.Type = "message"
+	m.Type = slack.TYPE_MESSAGE
 	m.Channel = channel
 	m.Text = fmt.Sprintf("<@%s> %s", sts.BotID, msg)
 	m.Timestamp = fmt.Sprintf("%d", time.Now().Unix())
@@ -87,13 +105,13 @@ func (sts *Server) SendMessageToBot(channel, msg string) {
 		log.Printf("Unable to marshal message for bot: %s", jErr.Error())
 		return
 	}
-	sts.SendMessages <- string(j)
+	go queueForWebsocket(string(j))
 }
 
 // SendMessageToChannel sends a message to a channel
 func (sts *Server) SendMessageToChannel(channel, msg string) {
 	m := slack.Message{}
-	m.Type = "message"
+	m.Type = slack.TYPE_MESSAGE
 	m.Channel = channel
 	m.Text = msg
 	m.Timestamp = fmt.Sprintf("%d", time.Now().Unix())
@@ -102,28 +120,11 @@ func (sts *Server) SendMessageToChannel(channel, msg string) {
 		log.Printf("Unable to marshal message for channel: %s", jErr.Error())
 		return
 	}
-	sts.SendMessages <- string(j)
+	stringMsg := string(j)
+	go queueForWebsocket(stringMsg)
 }
 
 // SetBotName sets a custom botname
 func (sts *Server) SetBotName(b string) {
 	sts.BotName = b
-}
-
-// BotNameFromContext returns the botname from a provided context
-func BotNameFromContext(ctx context.Context) string {
-	botname, ok := ctx.Value(ServerBotNameContextKey).(string)
-	if !ok {
-		return defaultBotName
-	}
-	return botname
-}
-
-// BotIDFromContext returns the bot userid from a provided context
-func BotIDFromContext(ctx context.Context) string {
-	botname, ok := ctx.Value(ServerBotIDContextKey).(string)
-	if !ok {
-		return defaultBotID
-	}
-	return botname
 }

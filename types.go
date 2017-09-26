@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 
 	slack "github.com/nlopes/slack"
 )
@@ -24,22 +25,22 @@ var ServerBotIDContextKey contextKey = "__SERVER_BOTID__"
 
 var sendMessageChannel chan (string)
 var seenMessageChannel chan (string)
-var seenMessages []string
+var seenInboundMessages = &messageCollection{}
+var seenOutboundMessages = &messageCollection{}
 
-const defaultBotName = "TestSlackBot"
-const defaultBotID = "U023BECGF"
+type messageCollection struct {
+	sync.RWMutex
+	messages []string
+}
 
 // Server represents a Slack Test server
 type Server struct {
-	server       *httptest.Server
-	mux          *http.ServeMux
-	Logger       *log.Logger
-	BotName      string
-	BotID        string
-	ServerAddr   string
-	SlackClient  *slack.Client
-	SendMessages chan (string)
-	SeenFeed     chan (string)
+	server     *httptest.Server
+	mux        *http.ServeMux
+	Logger     *log.Logger
+	BotName    string
+	BotID      string
+	ServerAddr string
 }
 
 type fullInfoSlackResponse struct {

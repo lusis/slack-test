@@ -18,7 +18,7 @@ func NewTestServer() *Server {
 	seenMessageChannel = make(chan (string))
 	s := &Server{
 		SendMessages: sendMessageChannel,
-		SeenMessages: seenMessageChannel,
+		SeenFeed:     seenMessageChannel,
 	}
 	mux := http.NewServeMux()
 	mux.Handle("/ws", contextHandler(s, wsHandler))
@@ -32,6 +32,27 @@ func NewTestServer() *Server {
 	s.BotName = defaultBotName
 	s.BotID = defaultBotID
 	return s
+}
+
+// GetSeenMessages returns all messages seen via websocket excluding pings
+func (sts *Server) GetSeenMessages() []string {
+	return seenMessages
+}
+
+// SawMessage checks if a message was seen
+func (sts *Server) SawMessage(msg string) bool {
+	for _, m := range seenMessages {
+		evt := &slack.MessageEvent{}
+		jErr := json.Unmarshal([]byte(m), evt)
+		if jErr != nil {
+			// This event isn't a message event so we'll skip it
+			continue
+		}
+		if evt.Text == msg {
+			return true
+		}
+	}
+	return false
 }
 
 // GetAPIURL returns the api url you can pass to slack.SLACK_API

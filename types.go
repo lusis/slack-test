@@ -24,6 +24,7 @@ var ServerBotIDContextKey contextKey = "__SERVER_BOTID__"
 
 var sendMessageChannel chan (string)
 var seenMessageChannel chan (string)
+var seenMessages []string
 
 const defaultBotName = "TestSlackBot"
 const defaultBotID = "U023BECGF"
@@ -38,7 +39,7 @@ type Server struct {
 	ServerAddr   string
 	SlackClient  *slack.Client
 	SendMessages chan (string)
-	SeenMessages chan (string)
+	SeenFeed     chan (string)
 }
 
 type fullInfoSlackResponse struct {

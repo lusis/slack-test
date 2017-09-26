@@ -144,6 +144,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			continue
 		} else {
+			seenMessages = append(seenMessages, message)
 			seenMessageChannel <- message
 		}
 	}

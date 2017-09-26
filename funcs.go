@@ -13,7 +13,6 @@ func sendToChannel(s string) {
 
 func handlePendingMessages(c *websocket.Conn) {
 	for m := range sendMessageChannel {
-		log.Printf("Got an incoming message: %s", m)
 		err := c.WriteMessage(websocket.TextMessage, []byte(m))
 		if err != nil {
 			log.Printf("error writing message to websocket: %s", err.Error())

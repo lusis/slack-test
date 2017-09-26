@@ -53,13 +53,12 @@ func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func rtmStartHandler(w http.ResponseWriter, r *http.Request) {
-	data, err := ioutil.ReadAll(r.Body)
+	_, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error reading body: %s", err.Error())
 		return
 	}
 	ts := slack.JSONTime(1402463766)
-	log.Printf(string(data))
 	wsurl := r.Context().Value(ServerWSContextKey).(string)
 	rtmInfo := slack.Info{
 		URL: wsurl,
@@ -118,7 +117,6 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		message := string(messageBytes)
-		log.Printf("Saw message: %s", string(message))
 
 		evt := &slack.Event{}
 		if err := json.Unmarshal(messageBytes, evt); err != nil {
@@ -126,7 +124,6 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			log.Printf("failed message: %s", string(message))
 			continue
 		}
-		log.Printf("Decoded message as type: %s", evt.Type)
 		if evt.Type == "ping" {
 			p := &slack.Ping{}
 			jErr := json.Unmarshal(messageBytes, p)

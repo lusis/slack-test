@@ -69,6 +69,21 @@ func (sts *Server) SendMessageToBot(channel, msg string) {
 	sts.SendMessages <- string(j)
 }
 
+// SendMessageToChannel sends a message to a channel
+func (sts *Server) SendMessageToChannel(channel, msg string) {
+	m := slack.Message{}
+	m.Type = "message"
+	m.Channel = channel
+	m.Text = msg
+	m.Timestamp = fmt.Sprintf("%d", time.Now().Unix())
+	j, jErr := json.Marshal(m)
+	if jErr != nil {
+		log.Printf("Unable to marshal message for channel: %s", jErr.Error())
+		return
+	}
+	sts.SendMessages <- string(j)
+}
+
 // SetBotName sets a custom botname
 func (sts *Server) SetBotName(b string) {
 	sts.BotName = b

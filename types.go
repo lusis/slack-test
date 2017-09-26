@@ -1,6 +1,7 @@
 package slacktest
 
 import (
+	"log"
 	"net/http"
 	"net/http/httptest"
 
@@ -31,6 +32,7 @@ const defaultBotID = "U023BECGF"
 type Server struct {
 	server       *httptest.Server
 	mux          *http.ServeMux
+	Logger       *log.Logger
 	BotName      string
 	BotID        string
 	ServerAddr   string

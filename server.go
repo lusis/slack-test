@@ -27,6 +27,7 @@ func NewTestServer() *Server {
 	s.server = httpserver
 	s.BotName = defaultBotName
 	s.BotID = defaultBotID
+	s.SeenFeed = seenMessageChannel
 	return s
 }
 

@@ -41,6 +41,7 @@ type Server struct {
 	BotName    string
 	BotID      string
 	ServerAddr string
+	SeenFeed   chan (string)
 }
 
 type fullInfoSlackResponse struct {

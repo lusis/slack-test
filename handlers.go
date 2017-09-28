@@ -19,10 +19,31 @@ func contextHandler(server *Server, next http.HandlerFunc) http.Handler {
 		ctx := context.WithValue(r.Context(), ServerURLContextKey, server.GetAPIURL())
 		ctx = context.WithValue(ctx, ServerWSContextKey, server.GetWSURL())
 		ctx = context.WithValue(ctx, ServerBotNameContextKey, server.BotName)
+		ctx = context.WithValue(ctx, ServerBotChannelsContextKey, server.GetChannels())
+		ctx = context.WithValue(ctx, ServerBotGroupsContextKey, server.GetGroups())
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
+func usersInfoHandler(w http.ResponseWriter, r *http.Request) {
+	_, _ = w.Write([]byte(defaultUsersInfoJSON))
+}
+
+func botsInfoHandler(w http.ResponseWriter, r *http.Request) {
+	_, _ = w.Write([]byte(defaultBotInfoJSON(r.Context())))
+}
+
+// handle channels.list
+func listChannelsHandler(w http.ResponseWriter, r *http.Request) {
+	_, _ = w.Write([]byte(defaultChannelsListJSON))
+}
+
+// handle groups.list
+func listGroupsHandler(w http.ResponseWriter, r *http.Request) {
+	_, _ = w.Write([]byte(defaultGroupsListJSON))
+}
+
+// handle chat.postMessage
 func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {

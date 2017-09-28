@@ -2,24 +2,6 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "github.com/alecthomas/assert"
-  packages = ["."]
-  revision = "561411bbb7e98b005e520f4c0f491c2d23782048"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/alecthomas/colour"
-  packages = ["."]
-  revision = "60882d9e27213e8552dcff6328914fe4c2b44bc9"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/alecthomas/repr"
-  packages = ["."]
-  revision = "cf65cb4862d253d2399cc9c31a6153c12a7e8345"
-
-[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -32,16 +14,10 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "context-fix"
+  branch = "master"
   name = "github.com/lusis/go-slackbot"
   packages = ["."]
-  revision = "74167aa0bcf36b03dc0b84ea77cf342bdb9e3b44"
-
-[[projects]]
-  name = "github.com/mattn/go-isatty"
-  packages = ["."]
-  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
-  version = "v0.0.3"
+  revision = "91c86f30ed8f8143625db2bf391e14de904a24f3"
 
 [[projects]]
   name = "github.com/nlopes/slack"
@@ -56,12 +32,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/sergi/go-diff"
-  packages = ["diffmatchpatch"]
-  revision = "feef008d51ad2b3778f85d387ccf91735543008d"
-
-[[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
   revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
@@ -71,17 +41,11 @@
   branch = "master"
   name = "golang.org/x/net"
   packages = ["websocket"]
-  revision = "0744d001aa8470aaa53df28d32e5ceeb8af9bd70"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/sys"
-  packages = ["unix"]
-  revision = "429f518978ab01db8bb6f44b66785088e7fba58b"
+  revision = "0a9397675ba34b2845f758fe3cd68828369c6517"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "65d1f5fbbb39b1a0f941f60fe160da45c7db35b9024593cf7e79aa2865da107d"
+  inputs-digest = "ce1de31d9b4fdc6291e658a36e2326db6f747beeae25ffcdc792dadf1d4819e8"
   solver-name = "gps-cdcl"
   solver-version = 1

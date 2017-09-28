@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/alecthomas/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGenerateDefaultRTMInfo(t *testing.T) {

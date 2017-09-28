@@ -2,7 +2,9 @@ package slacktest
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"time"
 
 	websocket "github.com/gorilla/websocket"
 	slack "github.com/nlopes/slack"
@@ -65,4 +67,30 @@ func generateRTMInfo(ctx context.Context, wsurl string) *fullInfoSlackResponse {
 		rtmInfo,
 		okWebResponse,
 	}
+}
+
+func nowAsJSONTime() slack.JSONTime {
+	return slack.JSONTime(time.Now().Unix())
+}
+
+func defaultBotInfoJSON(ctx context.Context) string {
+	botid := BotIDFromContext(ctx)
+	botname := BotNameFromContext(ctx)
+	return fmt.Sprintf(`
+		{
+			"ok":true,
+			"bot":{
+					"id": "%s",
+					"app_id": "A4H1JB4AZ",
+					"deleted": false,
+					"name": "%s",
+					"icons": {
+						"image_36": "https://localhost.localdomain/img36.png",
+						"image_48": "https://localhost.localdomain/img48.png",
+						"image_72": "https://localhost.localdomain/img72.png"
+					}
+				}
+			}
+		}
+		`, botid, botname)
 }

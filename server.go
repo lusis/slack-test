@@ -15,11 +15,17 @@ import (
 func NewTestServer() *Server {
 	sendMessageChannel = make(chan (string))
 	seenMessageChannel = make(chan (string))
+	channels := &serverChannels{}
+	groups := &serverGroups{}
 	s := &Server{}
 	mux := http.NewServeMux()
 	mux.Handle("/ws", contextHandler(s, wsHandler))
 	mux.Handle("/rtm.start", contextHandler(s, rtmStartHandler))
 	mux.Handle("/chat.postMessage", contextHandler(s, postMessageHandler))
+	mux.Handle("/channels.list", contextHandler(s, listChannelsHandler))
+	mux.Handle("/groups.list", contextHandler(s, listGroupsHandler))
+	mux.Handle("/users.info", contextHandler(s, usersInfoHandler))
+	mux.Handle("/bots.info", contextHandler(s, botsInfoHandler))
 	httpserver := httptest.NewUnstartedServer(mux)
 	addr := httpserver.Listener.Addr().String()
 
@@ -28,7 +34,35 @@ func NewTestServer() *Server {
 	s.BotName = defaultBotName
 	s.BotID = defaultBotID
 	s.SeenFeed = seenMessageChannel
+	s.channels = channels
+	s.groups = groups
 	return s
+}
+
+// GetChannels returns all the fake channels registered
+func (sts *Server) GetChannels() []slack.Channel {
+	sts.channels.RLock()
+	defer sts.channels.RUnlock()
+	return sts.channels.channels
+}
+
+// GetGroups returns all the fake groups registered
+func (sts *Server) GetGroups() []slack.Group {
+	return sts.groups.channels
+}
+
+// AddChannel adds a new fake channel
+func (sts *Server) AddChannel(c slack.Channel) {
+	sts.channels.Lock()
+	sts.channels.channels = append(sts.channels.channels, c)
+	sts.channels.Unlock()
+}
+
+// AddGroup adds a new fake group
+func (sts *Server) AddGroup(c slack.Group) {
+	sts.groups.Lock()
+	sts.groups.channels = append(sts.groups.channels, c)
+	sts.groups.Unlock()
 }
 
 // GetSeenMessages returns all messages seen via websocket excluding pings
@@ -99,6 +133,7 @@ func (sts *Server) SendMessageToBot(channel, msg string) {
 	m := slack.Message{}
 	m.Type = slack.TYPE_MESSAGE
 	m.Channel = channel
+	m.User = "W012A3CDE"
 	m.Text = fmt.Sprintf("<@%s> %s", sts.BotID, msg)
 	m.Timestamp = fmt.Sprintf("%d", time.Now().Unix())
 	j, jErr := json.Marshal(m)
@@ -115,6 +150,7 @@ func (sts *Server) SendMessageToChannel(channel, msg string) {
 	m.Type = slack.TYPE_MESSAGE
 	m.Channel = channel
 	m.Text = msg
+	m.User = "W012A3CDE"
 	m.Timestamp = fmt.Sprintf("%d", time.Now().Unix())
 	j, jErr := json.Marshal(m)
 	if jErr != nil {

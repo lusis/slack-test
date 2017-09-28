@@ -23,6 +23,12 @@ var ServerBotNameContextKey contextKey = "__SERVER_BOTNAME__"
 // ServerBotIDContextKey is the bot userid
 var ServerBotIDContextKey contextKey = "__SERVER_BOTID__"
 
+// ServerBotChannelsContextKey is the list of channels associated with the fake server
+var ServerBotChannelsContextKey contextKey = "__SERVER_CHANNELS__"
+
+// ServerBotGroupsContextKey is the list of channels associated with the fake server
+var ServerBotGroupsContextKey contextKey = "__SERVER_GROUPS__"
+
 var sendMessageChannel chan (string)
 var seenMessageChannel chan (string)
 var seenInboundMessages = &messageCollection{}
@@ -31,6 +37,16 @@ var seenOutboundMessages = &messageCollection{}
 type messageCollection struct {
 	sync.RWMutex
 	messages []string
+}
+
+type serverChannels struct {
+	sync.RWMutex
+	channels []slack.Channel
+}
+
+type serverGroups struct {
+	sync.RWMutex
+	channels []slack.Group
 }
 
 // Server represents a Slack Test server
@@ -42,6 +58,8 @@ type Server struct {
 	BotID      string
 	ServerAddr string
 	SeenFeed   chan (string)
+	channels   *serverChannels
+	groups     *serverGroups
 }
 
 type fullInfoSlackResponse struct {

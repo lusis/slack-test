@@ -26,17 +26,17 @@ func TestCustomNewServer(t *testing.T) {
 func TestServerSendMessageToChannel(t *testing.T) {
 	s := NewTestServer()
 	go s.Start()
-	s.SendMessageToChannel("C123456789", "test message")
+	s.SendMessageToChannel("C123456789", t.Name())
 	time.Sleep(2 * time.Second)
-	assert.True(t, s.SawOutgoingMessage("test message"))
+	assert.True(t, s.SawOutgoingMessage(t.Name()))
 	s.Stop()
 }
 
 func TestServerSendMessageToBot(t *testing.T) {
 	s := NewTestServer()
 	go s.Start()
-	s.SendMessageToBot("C123456789", "bot message")
-	expectedMsg := fmt.Sprintf("<@%s> bot message", s.BotID)
+	s.SendMessageToBot("C123456789", t.Name())
+	expectedMsg := fmt.Sprintf("<@%s> %s", s.BotID, t.Name())
 	time.Sleep(2 * time.Second)
 	assert.True(t, s.SawOutgoingMessage(expectedMsg))
 	s.Stop()
@@ -67,4 +67,15 @@ func TestBotsInfoHandler(t *testing.T) {
 	assert.Equal(t, "W012A3CDE", user.ID)
 	assert.Equal(t, "spengler", user.Name)
 	assert.True(t, user.IsAdmin)
+}
+
+func TestBotDirectMessage(t *testing.T) {
+	s := NewTestServer()
+	go s.Start()
+	slack.SLACK_API = s.GetAPIURL()
+	s.SendDirectMessageToBot(t.Name())
+	expectedMsg := fmt.Sprintf(t.Name())
+	time.Sleep(2)
+	assert.True(t, s.SawOutgoingMessage(expectedMsg))
+	s.Stop()
 }

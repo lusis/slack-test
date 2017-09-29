@@ -29,11 +29,22 @@ var ServerBotChannelsContextKey contextKey = "__SERVER_CHANNELS__"
 // ServerBotGroupsContextKey is the list of channels associated with the fake server
 var ServerBotGroupsContextKey contextKey = "__SERVER_GROUPS__"
 
-var sendMessageChannel chan (string)
-var seenMessageChannel chan (string)
-var seenInboundMessages = &messageCollection{}
-var seenOutboundMessages = &messageCollection{}
+// ServerBotHubNameContextKey is the context key for passing along the server name registered in the hub
+var ServerBotHubNameContextKey contextKey = "__SERVER_HUBNAME__"
 
+var seenInboundMessages *messageCollection
+var seenOutboundMessages *messageCollection
+var masterHub = newHub()
+
+type hub struct {
+	sync.RWMutex
+	serverChannels map[string]*messageChannels
+}
+
+type messageChannels struct {
+	seen chan (string)
+	sent chan (string)
+}
 type messageCollection struct {
 	sync.RWMutex
 	messages []string

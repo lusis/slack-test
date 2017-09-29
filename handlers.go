@@ -21,6 +21,7 @@ func contextHandler(server *Server, next http.HandlerFunc) http.Handler {
 		ctx = context.WithValue(ctx, ServerBotNameContextKey, server.BotName)
 		ctx = context.WithValue(ctx, ServerBotChannelsContextKey, server.GetChannels())
 		ctx = context.WithValue(ctx, ServerBotGroupsContextKey, server.GetGroups())
+		ctx = context.WithValue(ctx, ServerBotHubNameContextKey, server.ServerAddr)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -45,6 +46,7 @@ func listGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
 // handle chat.postMessage
 func postMessageHandler(w http.ResponseWriter, r *http.Request) {
+	serverAddr := r.Context().Value(ServerBotHubNameContextKey).(string)
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("error reading body: %s", err.Error())
@@ -68,7 +70,7 @@ func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 	if jsonErr != nil {
 		log.Printf("Unable to marshall message: %s", jsonErr.Error())
 	} else {
-		queueForWebsocket(string(jsonMessage))
+		queueForWebsocket(string(jsonMessage), serverAddr)
 	}
 	_, _ = w.Write([]byte(resp))
 }
@@ -109,9 +111,9 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer func() { _ = c.Close() }()
-	go handlePendingMessages(c)
+	serverAddr := r.Context().Value(ServerBotHubNameContextKey).(string)
+	go handlePendingMessages(c, serverAddr)
 	for {
-		log.Printf("Running websocket")
 		mt, messageBytes, err := c.ReadMessage()
 		if err != nil {
 			log.Printf("read error: %s", err.Error())
@@ -131,7 +133,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 				log.Printf("Unable to decode ping event: %s", jErr.Error())
 				continue
 			}
-			log.Print("responding to slack ping")
+			//log.Print("responding to slack ping")
 			pong := &slack.Pong{
 				ReplyTo: p.ID,
 				Type:    "pong",
@@ -144,7 +146,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			continue
 		} else {
-			postProcessMessage(message)
+			postProcessMessage(message, serverAddr)
 		}
 	}
 }

@@ -83,3 +83,57 @@ PASS
 ok      github.com/lusis/slack-test/examples/go-slackbot        4.005s
 #
 ```
+
+## testing an actual RTM session
+This gets tricky. You can look at the existing `rtm_test.go` but here's a documented example:
+```go
+package foo
+import (
+	"testing"
+	"time"
+
+	"github.com/nlopes/slack"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestRTMDirectMessage(t *testing.T) {
+    // Let's skip this when we want short/quick tests
+	if testing.Short() {
+		t.Skip("skipping timered test")
+	}
+    // how long should we wait for this test to finish?
+	maxWait := 5 * time.Second
+    // start our test server
+	s := NewTestServer()
+	go s.Start()
+    // set our slack API to the mock server
+	slack.SLACK_API = s.GetAPIURL()
+	api := slack.New("ABCDEFG")
+    // rtm instance
+	rtm := api.NewRTM()
+	go rtm.ManageConnection()
+    // create a channel to pass our results from the next goroutine
+    // that is a goroutine doing the normal range over rtm.IncomingEvents
+	messageChan := make(chan (*slack.MessageEvent), 1)
+	go func() {
+		for msg := range rtm.IncomingEvents {
+			switch ev := msg.Data.(type) {
+			case *slack.MessageEvent:
+				messageChan <- ev
+			}
+		}
+	}()
+    // since we want to test direct messages, let's send one to the bot
+	s.SendDirectMessageToBot(t.Name())
+    // now we block this test
+	select {
+    // if we get a slack.MessageEvent, perform some assertions
+	case m := <-messageChan:
+		assert.Equal(t, "D024BE91L", m.Channel)
+		assert.Equal(t, t.Name(), m.Text)
+    // if we hit our timeout, fail the test
+	case <-time.After(maxWait):
+		assert.FailNow(t, "did not get direct message in time")
+	}
+}
+```

@@ -10,16 +10,25 @@ import (
 	slack "github.com/nlopes/slack"
 )
 
-func queueForWebsocket(s string) {
+func queueForWebsocket(s, hubname string) {
+	channel, err := getHubForServer(hubname)
+	if err != nil {
+		log.Printf("Unable to get server's channels: %s", err.Error())
+	}
 	seenOutboundMessages.Lock()
 	seenOutboundMessages.messages = append(seenOutboundMessages.messages, s)
 	seenOutboundMessages.Unlock()
-	sendMessageChannel <- s
+	channel.sent <- s
 
 }
 
-func handlePendingMessages(c *websocket.Conn) {
-	for m := range sendMessageChannel {
+func handlePendingMessages(c *websocket.Conn, hubname string) {
+	channel, err := getHubForServer(hubname)
+	if err != nil {
+		log.Printf("Unable to get server's channels: %s", err.Error())
+		return
+	}
+	for m := range channel.sent {
 		err := c.WriteMessage(websocket.TextMessage, []byte(m))
 		if err != nil {
 			log.Printf("error writing message to websocket: %s", err.Error())
@@ -28,12 +37,46 @@ func handlePendingMessages(c *websocket.Conn) {
 	}
 }
 
-func postProcessMessage(m string) {
+func postProcessMessage(m, hubname string) {
+	channel, err := getHubForServer(hubname)
+	if err != nil {
+		log.Printf("Unable to get server's channels: %s", err.Error())
+	}
 	seenInboundMessages.Lock()
 	seenInboundMessages.messages = append(seenInboundMessages.messages, m)
 	seenInboundMessages.Unlock()
 	// send to firehose
-	seenMessageChannel <- m
+	channel.seen <- m
+}
+
+func newHub() *hub {
+	h := &hub{}
+	c := make(map[string]*messageChannels)
+	h.serverChannels = c
+	return h
+}
+
+func addServerToHub(s *Server, channels *messageChannels) {
+	if s.ServerAddr == "" {
+		log.Printf("Unable to add an empty server addr to hub")
+	}
+	masterHub.Lock()
+	masterHub.serverChannels[s.ServerAddr] = channels
+	masterHub.Unlock()
+}
+
+func getHubForServer(serverAddr string) (*messageChannels, error) {
+	if serverAddr == "" {
+		return &messageChannels{}, fmt.Errorf("got passed an empty server addr")
+	}
+	masterHub.RLock()
+	defer masterHub.RUnlock()
+	channels, ok := masterHub.serverChannels[serverAddr]
+	if !ok {
+		fmt.Printf("Message Hub: %#v\n", masterHub.serverChannels)
+		return &messageChannels{}, fmt.Errorf("No queues registered for server %s", serverAddr)
+	}
+	return channels, nil
 }
 
 // BotNameFromContext returns the botname from a provided context

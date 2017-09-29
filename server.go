@@ -11,10 +11,21 @@ import (
 	slack "github.com/nlopes/slack"
 )
 
+func newMessageChannels() *messageChannels {
+	sent := make(chan (string))
+	seen := make(chan (string))
+	mc := messageChannels{
+		seen: seen,
+		sent: sent,
+	}
+	return &mc
+}
+
 // NewTestServer returns a slacktest.Server ready to be started
 func NewTestServer() *Server {
-	sendMessageChannel = make(chan (string))
-	seenMessageChannel = make(chan (string))
+	serverChans := newMessageChannels()
+	seenInboundMessages = &messageCollection{}
+	seenOutboundMessages = &messageCollection{}
 	channels := &serverChannels{}
 	groups := &serverGroups{}
 	s := &Server{}
@@ -33,9 +44,10 @@ func NewTestServer() *Server {
 	s.server = httpserver
 	s.BotName = defaultBotName
 	s.BotID = defaultBotID
-	s.SeenFeed = seenMessageChannel
+	s.SeenFeed = serverChans.seen
 	s.channels = channels
 	s.groups = groups
+	addServerToHub(s, serverChans)
 	return s
 }
 
@@ -141,7 +153,23 @@ func (sts *Server) SendMessageToBot(channel, msg string) {
 		log.Printf("Unable to marshal message for bot: %s", jErr.Error())
 		return
 	}
-	go queueForWebsocket(string(j))
+	go queueForWebsocket(string(j), sts.ServerAddr)
+}
+
+// SendDirectMessageToBot sends a direct message to the bot
+func (sts *Server) SendDirectMessageToBot(msg string) {
+	m := slack.Message{}
+	m.Type = slack.TYPE_MESSAGE
+	m.Channel = "D024BE91L"
+	m.User = "W012A3CDE"
+	m.Text = msg
+	m.Timestamp = fmt.Sprintf("%d", time.Now().Unix())
+	j, jErr := json.Marshal(m)
+	if jErr != nil {
+		log.Printf("Unable to marshal private message for bot: %s", jErr.Error())
+		return
+	}
+	go queueForWebsocket(string(j), sts.ServerAddr)
 }
 
 // SendMessageToChannel sends a message to a channel
@@ -158,7 +186,7 @@ func (sts *Server) SendMessageToChannel(channel, msg string) {
 		return
 	}
 	stringMsg := string(j)
-	go queueForWebsocket(stringMsg)
+	go queueForWebsocket(stringMsg, sts.ServerAddr)
 }
 
 // SetBotName sets a custom botname

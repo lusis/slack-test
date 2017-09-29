@@ -16,7 +16,7 @@ func TestGlobalMessageHandler(t *testing.T) {
 	slack.SLACK_API = "http://" + s.ServerAddr + "/"
 	go s.Start()
 	bot := slackbot.New("ABCDEFG")
-	bot.Hear("global message").MessageHandler(globalMessageHandler)
+	configureBot(bot)
 	go bot.Run()
 	s.SendMessageToChannel("#general", "global message")
 	time.Sleep(2 * time.Second)
@@ -30,11 +30,24 @@ func TestHelloMessageHandler(t *testing.T) {
 	slack.SLACK_API = "http://" + s.ServerAddr + "/"
 	go s.Start()
 	bot := slackbot.New("ABCDEFG")
-	toMe := bot.Messages(slackbot.DirectMention).Subrouter()
-	toMe.Hear("greetings and salutations").MessageHandler(helloFunc)
+	configureBot(bot)
 	go bot.Run()
 	s.SendMessageToBot("#general", "greetings and salutations")
 	time.Sleep(2 * time.Second)
 	assert.True(t, s.SawMessage("hi there to you too!"), "bot did not respond correctly")
+	s.Stop()
+}
+
+func TestDirectMessageHandler(t *testing.T) {
+	s := slacktest.NewTestServer()
+	s.SetBotName("foobot")
+	slack.SLACK_API = "http://" + s.ServerAddr + "/"
+	go s.Start()
+	bot := slackbot.New("ABCDEFG")
+	configureBot(bot)
+	go bot.Run()
+	s.SendDirectMessageToBot("wanna chat?")
+	time.Sleep(2 * time.Second)
+	assert.True(t, s.SawMessage("sorry I can't do direct messages"), "bot did not respond correctly")
 	s.Stop()
 }

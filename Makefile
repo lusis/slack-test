@@ -7,7 +7,11 @@ else
 	GOPATH := $(GOPATH):$(TRAVIS_BUILD_DIR)
 endif
 
-all: clean lint test coverage $(EXLIST)
+all: chmod clean lint test coverage $(EXLIST)
+
+# this chmod is a side effect of some windows-development related issues
+chmod:
+	chmod +x script/*
 
 lint:
 	@script/lint
@@ -26,4 +30,4 @@ $(EXLIST):
 clean:
 	@rm -rf bin/ pkg/
 
-.PHONY: all clean lint test coverage $(EXLIST)
+.PHONY: all chmod clean lint test coverage $(EXLIST)

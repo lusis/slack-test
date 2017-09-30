@@ -1,4 +1,5 @@
 # slacktest
+[![Build Status](https://travis-ci.org/lusis/slack-test.svg?branch=master)](https://travis-ci.org/lusis/slack-test)
 This is a very basic golang library for testing your slack RTM chatbots
 
 Depending on your mechanism for building slackbots in go and how broken out your message parsing logic is, you can normally test that part pretty cleanly.

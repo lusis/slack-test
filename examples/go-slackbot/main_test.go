@@ -13,7 +13,7 @@ import (
 func TestGlobalMessageHandler(t *testing.T) {
 	s := slacktest.NewTestServer()
 	s.SetBotName("TestSlackBot")
-	slack.SLACK_API = "http://" + s.ServerAddr + "/"
+	slack.SLACK_API = s.GetAPIURL()
 	go s.Start()
 	bot := slackbot.New("ABCDEFG")
 	configureBot(bot)
@@ -27,7 +27,7 @@ func TestGlobalMessageHandler(t *testing.T) {
 func TestHelloMessageHandler(t *testing.T) {
 	s := slacktest.NewTestServer()
 	s.SetBotName("foobot")
-	slack.SLACK_API = "http://" + s.ServerAddr + "/"
+	slack.SLACK_API = s.GetAPIURL()
 	go s.Start()
 	bot := slackbot.New("ABCDEFG")
 	configureBot(bot)
@@ -41,7 +41,7 @@ func TestHelloMessageHandler(t *testing.T) {
 func TestDirectMessageHandler(t *testing.T) {
 	s := slacktest.NewTestServer()
 	s.SetBotName("foobot")
-	slack.SLACK_API = "http://" + s.ServerAddr + "/"
+	slack.SLACK_API = s.GetAPIURL()
 	go s.Start()
 	bot := slackbot.New("ABCDEFG")
 	configureBot(bot)

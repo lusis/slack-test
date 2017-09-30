@@ -9,6 +9,8 @@ import (
 const defaultBotName = "TestSlackBot"
 const defaultBotID = "U023BECGF"
 const defaultTeamID = "T024BE7LD"
+const defaultNonBotUserID = "W012A3CDE"
+const defaultNonBotUserName = "Egon Spengler"
 const defaultTeamName = "SlackTest Team"
 const defaultTeamDomain = "testdomain"
 
@@ -133,14 +135,14 @@ var defaultGroupJSON = fmt.Sprintf(`{
     }
 }`, nowAsJSONTime(), nowAsJSONTime(), nowAsJSONTime())
 
-var defaultNonBotUser = `
+var defaultNonBotUser = fmt.Sprintf(`
 		"user": {
-			"id": "W012A3CDE",
+			"id": "%s",
 			"team_id": "T012AB3C4",
 			"name": "spengler",
 			"deleted": false,
 			"color": "9f69e7",
-			"real_name": "Egon Spengler",
+			"real_name": "%s",
 			"tz": "America/Los_Angeles",
 			"tz_label": "Pacific Daylight Time",
 			"tz_offset": -25200,
@@ -148,9 +150,9 @@ var defaultNonBotUser = `
 				"avatar_hash": "ge3b51ca72de",
 				"status_text": "Print is dead",
 				"status_emoji": ":books:",
-				"real_name": "Egon Spengler",
+				"real_name": "%s",
 				"display_name": "spengler",
-				"real_name_normalized": "Egon Spengler",
+				"real_name_normalized": "%s",
 				"display_name_normalized": "spengler",
 				"email": "spengler@ghostbusters.example.com",
 				"image_24": "https://localhost.localdomain/avatar/e3b51ca72dee4ef87916ae2b9240df50.jpg",
@@ -173,4 +175,4 @@ var defaultNonBotUser = `
 			"has_2fa": false,
 			"locale": "en-US"
 		}
-	`
+	`, defaultNonBotUserID, defaultNonBotUserName, defaultNonBotUserName, defaultNonBotUserName)

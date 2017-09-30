@@ -145,7 +145,7 @@ func (sts *Server) SendMessageToBot(channel, msg string) {
 	m := slack.Message{}
 	m.Type = slack.TYPE_MESSAGE
 	m.Channel = channel
-	m.User = "W012A3CDE"
+	m.User = defaultNonBotUserID
 	m.Text = fmt.Sprintf("<@%s> %s", sts.BotID, msg)
 	m.Timestamp = fmt.Sprintf("%d", time.Now().Unix())
 	j, jErr := json.Marshal(m)
@@ -161,7 +161,7 @@ func (sts *Server) SendDirectMessageToBot(msg string) {
 	m := slack.Message{}
 	m.Type = slack.TYPE_MESSAGE
 	m.Channel = "D024BE91L"
-	m.User = "W012A3CDE"
+	m.User = defaultNonBotUserID
 	m.Text = msg
 	m.Timestamp = fmt.Sprintf("%d", time.Now().Unix())
 	j, jErr := json.Marshal(m)
@@ -178,7 +178,7 @@ func (sts *Server) SendMessageToChannel(channel, msg string) {
 	m.Type = slack.TYPE_MESSAGE
 	m.Channel = channel
 	m.Text = msg
-	m.User = "W012A3CDE"
+	m.User = defaultNonBotUserID
 	m.Timestamp = fmt.Sprintf("%d", time.Now().Unix())
 	j, jErr := json.Marshal(m)
 	if jErr != nil {

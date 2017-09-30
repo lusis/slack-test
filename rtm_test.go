@@ -61,6 +61,7 @@ func TestRTMDirectMessage(t *testing.T) {
 	s.SendDirectMessageToBot(t.Name())
 	select {
 	case m := <-messageChan:
+		assert.Equal(t, defaultNonBotUserID, m.User)
 		assert.Equal(t, "D024BE91L", m.Channel)
 		assert.Equal(t, t.Name(), m.Text)
 	case <-time.After(maxWait):

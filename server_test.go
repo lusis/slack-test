@@ -131,3 +131,33 @@ func TestGetSeenInboundMessages(t *testing.T) {
 	assert.True(t, hadMessage, "did not see my sent message")
 	assert.True(t, s.SawMessage("should see this inbound message"))
 }
+
+func TestSendToWebsocket(t *testing.T) {
+	maxWait := 5 * time.Second
+	s := NewTestServer()
+	go s.Start()
+	_, rtm := s.GetTestRTMInstance()
+	go rtm.ManageConnection()
+	evChan := make(chan (slack.Channel), 1)
+	go func() {
+		for msg := range rtm.IncomingEvents {
+			switch ev := msg.Data.(type) {
+			case *slack.ChannelJoinedEvent:
+				evChan <- ev.Channel
+			}
+		}
+	}()
+	e := fmt.Sprintf(`{"type":"channel_joined", "channel":%s}`, defaultExtraChannelJSON)
+	s.SendToWebsocket(e)
+	time.Sleep(maxWait)
+	select {
+	case m := <-evChan:
+		assert.Equal(t, "C024BE92L", m.ID, "channel id should match")
+		assert.Equal(t, "Fun times", m.Topic.Value, "topic should match")
+		s.Stop()
+		break
+	case <-time.After(maxWait):
+		assert.FailNow(t, "did not get channel joined event in time")
+	}
+
+}

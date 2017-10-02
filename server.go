@@ -197,7 +197,21 @@ func (sts *Server) SendMessageToChannel(channel, msg string) {
 	go queueForWebsocket(stringMsg, sts.ServerAddr)
 }
 
+// SendToWebsocket send `s` as is to connected clients.
+// This is useful for sending your own custom json to the websocket
+func (sts *Server) SendToWebsocket(s string) {
+	go queueForWebsocket(s, sts.ServerAddr)
+}
+
 // SetBotName sets a custom botname
 func (sts *Server) SetBotName(b string) {
 	sts.BotName = b
+}
+
+// GetTestRTMInstance will give you an RTM instance in the context of the current fake server
+func (sts *Server) GetTestRTMInstance() (*slack.Client, *slack.RTM) {
+	slack.SLACK_API = sts.GetAPIURL()
+	api := slack.New("ABCEFG")
+	rtm := api.NewRTM()
+	return api, rtm
 }

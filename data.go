@@ -61,7 +61,7 @@ var defaultGeneralChannelJSON = fmt.Sprintf(`
         "name": "general",
         "is_channel": true,
         "created": %d,
-        "creator": "W012A3CDE",
+        "creator": "%s",
         "is_archived": false,
         "is_general": true,
 
@@ -71,18 +71,18 @@ var defaultGeneralChannelJSON = fmt.Sprintf(`
 
         "topic": {
             "value": "Fun times",
-            "creator": "W012A3CDE",
+            "creator": "%s",
             "last_set": %d
         },
         "purpose": {
             "value": "This channel is for fun",
-            "creator": "W012A3CDE",
+            "creator": "%s",
             "last_set": %d
         },
 
         "is_member": true
     }
-`, nowAsJSONTime(), nowAsJSONTime(), nowAsJSONTime())
+`, nowAsJSONTime(), defaultNonBotUserID, defaultNonBotUserID, nowAsJSONTime(), defaultNonBotUserID, nowAsJSONTime())
 
 var defaultExtraChannelJSON = fmt.Sprintf(`
 	{
@@ -90,7 +90,7 @@ var defaultExtraChannelJSON = fmt.Sprintf(`
         "name": "bot-playground",
         "is_channel": true,
         "created": %d,
-        "creator": "W012A3CDE",
+        "creator": "%s",
         "is_archived": false,
         "is_general": true,
 
@@ -100,45 +100,45 @@ var defaultExtraChannelJSON = fmt.Sprintf(`
 
         "topic": {
             "value": "Fun times",
-            "creator": "W012A3CDE",
+            "creator": "%s",
             "last_set": %d
         },
         "purpose": {
             "value": "This channel is for fun",
-            "creator": "W012A3CDE",
+            "creator": "%s",
             "last_set": %d
         },
 
         "is_member": true
     }
-`, nowAsJSONTime(), nowAsJSONTime(), nowAsJSONTime())
+`, nowAsJSONTime(), defaultNonBotUserID, defaultNonBotUserID, nowAsJSONTime(), defaultNonBotUserID, nowAsJSONTime())
 
 var defaultGroupJSON = fmt.Sprintf(`{
     "id": "G024BE91L",
     "name": "secretplans",
     "is_group": true,
     "created": %d,
-    "creator": "W012A3CDE",
+    "creator": "%s",
     "is_archived": false,
     "members": [
         "W012A3CDE"
     ],
     "topic": {
         "value": "Secret plans on hold",
-        "creator": "W012A3CDE",
+        "creator": "%s",
         "last_set": %d
     },
     "purpose": {
         "value": "Discuss secret plans that no-one else should know",
-        "creator": "W012A3CDE",
+        "creator": "%s",
         "last_set": %d
     }
-}`, nowAsJSONTime(), nowAsJSONTime(), nowAsJSONTime())
+}`, nowAsJSONTime(), defaultNonBotUserID, defaultNonBotUserID, nowAsJSONTime(), defaultNonBotUserID, nowAsJSONTime())
 
 var defaultNonBotUser = fmt.Sprintf(`
 		"user": {
 			"id": "%s",
-			"team_id": "T012AB3C4",
+			"team_id": "%s",
 			"name": "spengler",
 			"deleted": false,
 			"color": "9f69e7",
@@ -161,7 +161,7 @@ var defaultNonBotUser = fmt.Sprintf(`
 				"image_72": "https://localhost.localdomain/avatar/e3b51ca72dee4ef87916ae2b9240df50.jpg",
 				"image_192": "https://localhost.localdomain/avatar/e3b51ca72dee4ef87916ae2b9240df50.jpg",
 				"image_512": "https://localhost.localdomain/avatar/e3b51ca72dee4ef87916ae2b9240df50.jpg",
-				"team": "T012AB3C4"
+				"team": "%s"
 			},
 			"is_admin": true,
 			"is_owner": false,
@@ -175,4 +175,4 @@ var defaultNonBotUser = fmt.Sprintf(`
 			"has_2fa": false,
 			"locale": "en-US"
 		}
-	`, defaultNonBotUserID, defaultNonBotUserName, defaultNonBotUserName, defaultNonBotUserName)
+	`, defaultNonBotUserID, defaultTeamID, defaultNonBotUserName, defaultNonBotUserName, defaultNonBotUserName, defaultTeamID)

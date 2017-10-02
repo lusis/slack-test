@@ -13,12 +13,16 @@ The current most popular slack library for golang is [nlopes/slack](https://gith
 
 ## Limitations
 
-Right now the test server is VERY limited. It currently handles the following two API endpoints
+Right now the test server is VERY limited. It currently handles the following API endpoints
 
 - `rtm.start`
 - `chat.postMessage`
+- `channels.list`
+- `groups.list`
+- `users.info`
+- `bots.info`
 
-This is enough to do the initial testing I wanted to be able to accomplish.
+Additional endpoints are welcome.
 
 ## Example usage
 
@@ -142,6 +146,7 @@ func TestRTMDirectMessage(t *testing.T) {
     case m := <-messageChan:
         assert.Equal(t, "D024BE91L", m.Channel)
         assert.Equal(t, t.Name(), m.Text)
+        break
     // if we hit our timeout, fail the test
     case <-time.After(maxWait):
         assert.FailNow(t, "did not get direct message in time")

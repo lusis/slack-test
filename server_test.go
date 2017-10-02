@@ -1,6 +1,7 @@
 package slacktest
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
@@ -78,4 +79,55 @@ func TestBotDirectMessage(t *testing.T) {
 	time.Sleep(2)
 	assert.True(t, s.SawOutgoingMessage(expectedMsg))
 	s.Stop()
+}
+
+func TestGetSeenOutboundMessages(t *testing.T) {
+	maxWait := 5 * time.Second
+	s := NewTestServer()
+	go s.Start()
+	slack.SLACK_API = s.GetAPIURL()
+	s.SendMessageToChannel("foo", "should see this message")
+	time.Sleep(maxWait)
+	seenOutbound := s.GetSeenOutboundMessages()
+	assert.True(t, len(seenOutbound) > 0)
+	hadMessage := false
+	for _, msg := range seenOutbound {
+		var m = slack.Message{}
+		jerr := json.Unmarshal([]byte(msg), &m)
+		assert.NoError(t, jerr, "messages should decode as slack.Message")
+		if m.Text == "should see this message" {
+			hadMessage = true
+			break
+		}
+	}
+	assert.True(t, hadMessage, "did not see my sent message")
+}
+
+func TestGetSeenInboundMessages(t *testing.T) {
+	maxWait := 5 * time.Second
+	s := NewTestServer()
+	go s.Start()
+	slack.SLACK_API = s.GetAPIURL()
+	api := slack.New("ABCDEFG")
+	rtm := api.NewRTM()
+	go rtm.ManageConnection()
+	rtm.SendMessage(&slack.OutgoingMessage{
+		Channel: "foo",
+		Text:    "should see this inbound message",
+	})
+	time.Sleep(maxWait)
+	seenInbound := s.GetSeenInboundMessages()
+	assert.True(t, len(seenInbound) > 0)
+	hadMessage := false
+	for _, msg := range seenInbound {
+		var m = slack.Message{}
+		jerr := json.Unmarshal([]byte(msg), &m)
+		assert.NoError(t, jerr, "messages should decode as slack.Message")
+		if m.Text == "should see this inbound message" {
+			hadMessage = true
+			break
+		}
+	}
+	assert.True(t, hadMessage, "did not see my sent message")
+	assert.True(t, s.SawMessage("should see this inbound message"))
 }

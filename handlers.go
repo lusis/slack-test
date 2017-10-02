@@ -66,6 +66,9 @@ func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 	m.Channel = values.Get("channel")
 	m.Timestamp = fmt.Sprintf("%d", ts)
 	m.Text = values.Get("text")
+	if values.Get("user") == "" {
+		m.User = defaultNonBotUserID
+	}
 	jsonMessage, jsonErr := json.Marshal(m)
 	if jsonErr != nil {
 		log.Printf("Unable to marshall message: %s", jsonErr.Error())

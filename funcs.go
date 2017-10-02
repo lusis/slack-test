@@ -73,7 +73,7 @@ func getHubForServer(serverAddr string) (*messageChannels, error) {
 	defer masterHub.RUnlock()
 	channels, ok := masterHub.serverChannels[serverAddr]
 	if !ok {
-		fmt.Printf("Message Hub: %#v\n", masterHub.serverChannels)
+		//fmt.Printf("Message Hub: %#v\n", masterHub.serverChannels)
 		return &messageChannels{}, fmt.Errorf("No queues registered for server %s", serverAddr)
 	}
 	return channels, nil

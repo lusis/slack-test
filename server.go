@@ -77,11 +77,19 @@ func (sts *Server) AddGroup(c slack.Group) {
 	sts.groups.Unlock()
 }
 
-// GetSeenMessages returns all messages seen via websocket excluding pings
-func (sts *Server) GetSeenMessages() []string {
+// GetSeenInboundMessages returns all messages seen via websocket excluding pings
+func (sts *Server) GetSeenInboundMessages() []string {
 	seenInboundMessages.RLock()
 	m := seenInboundMessages.messages
 	seenInboundMessages.RUnlock()
+	return m
+}
+
+// GetSeenOutboundMessages returns all messages seen via websocket excluding pings
+func (sts *Server) GetSeenOutboundMessages() []string {
+	seenOutboundMessages.RLock()
+	m := seenOutboundMessages.messages
+	seenOutboundMessages.RUnlock()
 	return m
 }
 

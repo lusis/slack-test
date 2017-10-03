@@ -52,7 +52,6 @@ func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("error reading body: %s", err.Error())
 		return
 	}
-	log.Printf("Got a message posted: %s", string(data))
 	values, vErr := url.ParseQuery(string(data))
 	if vErr != nil {
 		log.Printf("Unable to decode query params: %s", err.Error())
@@ -60,14 +59,33 @@ func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ts := time.Now().Unix()
-	resp := fmt.Sprintf(`{"channel":%s,"ts":%d, "text":"%s", "ok": true}`, values.Get("channel"), ts, values.Get("text"))
+	resp := fmt.Sprintf(`{"channel":"%s","ts":"%d", "text":"%s", "ok": true}`, values.Get("channel"), ts, values.Get("text"))
 	m := slack.Message{}
 	m.Type = "message"
 	m.Channel = values.Get("channel")
 	m.Timestamp = fmt.Sprintf("%d", ts)
 	m.Text = values.Get("text")
-	if values.Get("user") == "" {
+	if values.Get("as_user") != "true" {
 		m.User = defaultNonBotUserID
+		m.Username = defaultNonBotUserName
+	} else {
+		m.User = BotIDFromContext(r.Context())
+		m.Username = BotNameFromContext(r.Context())
+	}
+	attachments := values.Get("attachments")
+	if attachments != "" {
+		decoded, err := url.QueryUnescape(attachments)
+		if err != nil {
+			log.Printf("got an error trying to decode the attachments param: %s", err.Error())
+		} else {
+			var attaches []slack.Attachment
+			aJErr := json.Unmarshal([]byte(decoded), &attaches)
+			if aJErr != nil {
+				log.Printf("unable to decode attachments string to json: %s", aJErr.Error())
+				return
+			}
+			m.Attachments = attaches
+		}
 	}
 	jsonMessage, jsonErr := json.Marshal(m)
 	if jsonErr != nil {

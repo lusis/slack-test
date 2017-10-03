@@ -34,6 +34,7 @@ var ServerBotHubNameContextKey contextKey = "__SERVER_HUBNAME__"
 
 var seenInboundMessages *messageCollection
 var seenOutboundMessages *messageCollection
+
 var masterHub = newHub()
 
 type hub struct {
@@ -42,8 +43,9 @@ type hub struct {
 }
 
 type messageChannels struct {
-	seen chan (string)
-	sent chan (string)
+	seen   chan (string)
+	sent   chan (string)
+	posted chan (slack.Message)
 }
 type messageCollection struct {
 	sync.RWMutex

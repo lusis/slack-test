@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	slackbot "github.com/lusis/go-slackbot"
@@ -20,7 +21,41 @@ func directMessageHandler(ctx context.Context, bot *slackbot.Bot, evt *slack.Mes
 	bot.Reply(evt, "sorry I can't do direct messages", slackbot.WithoutTyping)
 }
 
+func postMessageHandler(ctx context.Context, bot *slackbot.Bot, evt *slack.MessageEvent) {
+	_, _, err := bot.Client.PostMessage(evt.Channel, "posting to a channel via api", slack.PostMessageParameters{AsUser: true})
+	if err != nil {
+		fmt.Printf("Got an error making an api call to post a message: %s\n", err.Error())
+	}
+}
+
+func withAttachmentHandler(ctx context.Context, bot *slackbot.Bot, evt *slack.MessageEvent) {
+	p := &slack.PostMessageParameters{
+		AsUser: true,
+		Attachments: []slack.Attachment{
+			slack.Attachment{
+				Fallback:   "this is the fallback text",
+				AuthorName: "Message Author Name",
+				Title:      "message title",
+				Text:       "message text",
+				Fields: []slack.AttachmentField{
+					slack.AttachmentField{
+						Title: "field title",
+						Value: "field value",
+						Short: true,
+					},
+				},
+			},
+		},
+	}
+	_, _, err := bot.Client.PostMessage(evt.Channel, "", *p)
+	if err != nil {
+		fmt.Printf("got an error making an api call to post a message with an attachment: %s\n", err.Error())
+	}
+}
+
 func configureBot(bot *slackbot.Bot) {
+	bot.Hear("send an attachment").MessageHandler(withAttachmentHandler)
+	bot.Hear("send to api").MessageHandler(postMessageHandler)
 	bot.Hear("global message").MessageHandler(globalMessageHandler)
 	toMe := bot.Messages(slackbot.DirectMention).Subrouter()
 	toMe.Hear("greetings and salutations").MessageHandler(helloFunc)

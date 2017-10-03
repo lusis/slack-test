@@ -132,7 +132,7 @@ func TestGetSeenInboundMessages(t *testing.T) {
 	assert.True(t, s.SawMessage("should see this inbound message"))
 }
 
-func TestSendToWebsocket(t *testing.T) {
+func TestSendChannelInvite(t *testing.T) {
 	maxWait := 5 * time.Second
 	s := NewTestServer()
 	go s.Start()
@@ -147,8 +147,7 @@ func TestSendToWebsocket(t *testing.T) {
 			}
 		}
 	}()
-	e := fmt.Sprintf(`{"type":"channel_joined", "channel":%s}`, defaultExtraChannelJSON)
-	s.SendToWebsocket(e)
+	s.SendBotChannelInvite()
 	time.Sleep(maxWait)
 	select {
 	case m := <-evChan:
@@ -158,6 +157,35 @@ func TestSendToWebsocket(t *testing.T) {
 		break
 	case <-time.After(maxWait):
 		assert.FailNow(t, "did not get channel joined event in time")
+	}
+
+}
+
+func TestSendGroupInvite(t *testing.T) {
+	maxWait := 5 * time.Second
+	s := NewTestServer()
+	go s.Start()
+	_, rtm := s.GetTestRTMInstance()
+	go rtm.ManageConnection()
+	evChan := make(chan (slack.Channel), 1)
+	go func() {
+		for msg := range rtm.IncomingEvents {
+			switch ev := msg.Data.(type) {
+			case *slack.GroupJoinedEvent:
+				evChan <- ev.Channel
+			}
+		}
+	}()
+	s.SendBotGroupInvite()
+	time.Sleep(maxWait)
+	select {
+	case m := <-evChan:
+		assert.Equal(t, "G024BE91L", m.ID, "channel id should match")
+		assert.Equal(t, "Secret plans on hold", m.Topic.Value, "topic should match")
+		s.Stop()
+		break
+	case <-time.After(maxWait):
+		assert.FailNow(t, "did not get group joined event in time")
 	}
 
 }

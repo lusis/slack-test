@@ -208,6 +208,70 @@ func (sts *Server) SetBotName(b string) {
 	sts.BotName = b
 }
 
+// SendBotChannelInvite invites the bot to a channel
+func (sts *Server) SendBotChannelInvite() {
+	joinMsg := `
+	{
+			"type":"channel_joined",
+			"channel":
+					{
+							"id": "C024BE92L",
+							"name": "bot-playground",
+							"is_channel": true,
+							"created": 1360782804,
+							"creator": "W012A3CDE",
+							"is_archived": false,
+							"is_general": true,
+							"members": [
+									"W012A3CDE"
+							],
+							"topic": {
+									"value": "Fun times",
+									"creator": "W012A3CDE",
+									"last_set": 1360782804
+							},
+							"purpose": {
+									"value": "This channel is for fun",
+									"creator": "W012A3CDE",
+									"last_set": 1360782804
+							},
+							"is_member": true
+					}
+	}`
+	sts.SendToWebsocket(joinMsg)
+}
+
+// SendBotGroupInvite invites the bot to a channel
+func (sts *Server) SendBotGroupInvite() {
+	joinMsg := `
+	{
+			"type":"group_joined",
+			"channel":
+			{
+				"id": "G024BE91L",
+				"name": "secretplans",
+				"is_group": true,
+				"created": 1360782804,
+				"creator": "W012A3CDE",
+				"is_archived": false,
+				"members": [
+					"W012A3CDE"
+				],
+				"topic": {
+					"value": "Secret plans on hold",
+					"creator": "W012A3CDE",
+					"last_set": 1360782804
+				},
+				"purpose": {
+					"value": "Discuss secret plans that no-one else should know",
+					"creator": "W012A3CDE",
+					"last_set": 1360782804
+				}
+			}
+	}`
+	sts.SendToWebsocket(joinMsg)
+}
+
 // GetTestRTMInstance will give you an RTM instance in the context of the current fake server
 func (sts *Server) GetTestRTMInstance() (*slack.Client, *slack.RTM) {
 	slack.SLACK_API = sts.GetAPIURL()

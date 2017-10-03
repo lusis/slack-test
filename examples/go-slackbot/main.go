@@ -53,7 +53,16 @@ func withAttachmentHandler(ctx context.Context, bot *slackbot.Bot, evt *slack.Me
 	}
 }
 
+func channelJoinHandler(ctx context.Context, bot *slackbot.Bot, channel *slack.Channel) {
+	_, _, err := bot.Client.PostMessage(channel.ID, "thanks for the invite", slack.PostMessageParameters{})
+	if err != nil {
+		fmt.Printf("error handling channel join event: %s", err.Error())
+		return
+	}
+}
+
 func configureBot(bot *slackbot.Bot) {
+	bot.OnChannelJoin(channelJoinHandler)
 	bot.Hear("send an attachment").MessageHandler(withAttachmentHandler)
 	bot.Hear("send to api").MessageHandler(postMessageHandler)
 	bot.Hear("global message").MessageHandler(globalMessageHandler)

@@ -1,11 +1,11 @@
 #!/bin/bash
-if [ -z "${TRAVIS}" ]; then
+#if [ -z "${TRAVIS}" ]; then
 echo -n "running gocov"
 go get github.com/axw/gocov/gocov
 gocov test .| gocov report
-else
-echo -n "running goveralls"
-go get github.com/mattn/goveralls
+#else
+#echo -n "running goveralls"
+#go get github.com/mattn/goveralls
 
-goveralls -service=travis-ci
-fi
+#goveralls -service=travis-ci
+#fi

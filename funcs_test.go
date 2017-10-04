@@ -34,3 +34,21 @@ func TestCustomDefaultRTMInfo(t *testing.T) {
 	assert.Equal(t, defaultTeamName, info.Team.Name)
 	assert.Equal(t, defaultTeamDomain, info.Team.Domain)
 }
+
+func TestGetHubMissingServerAddr(t *testing.T) {
+	mc, err := getHubForServer("")
+	assert.Nil(t, mc.seen, "seen should be nil")
+	assert.Nil(t, mc.sent, "sent should be nil")
+	assert.Nil(t, mc.posted, "posted should be nil")
+	assert.Error(t, err, "should return an error")
+	assert.EqualError(t, err, "got passed an empty server addr")
+}
+
+func TestGetHubNoQueuesForServer(t *testing.T) {
+	mc, err := getHubForServer("foo")
+	assert.Nil(t, mc.seen, "seen should be nil")
+	assert.Nil(t, mc.sent, "sent should be nil")
+	assert.Nil(t, mc.posted, "posted should be nil")
+	assert.Error(t, err, "should return an error")
+	assert.EqualError(t, err, "No queues registered for server foo")
+}

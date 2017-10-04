@@ -43,34 +43,7 @@ func TestServerSendMessageToBot(t *testing.T) {
 	s.Stop()
 }
 
-func TestServerListChannels(t *testing.T) {
-	s := NewTestServer()
-	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
-	client := slack.New("ABCDEFG")
-	channels, err := client.GetChannels(true)
-	assert.NoError(t, err)
-	assert.Len(t, channels, 2)
-	assert.Equal(t, "C024BE91L", channels[0].ID)
-	assert.Equal(t, "C024BE92L", channels[1].ID)
-	for _, channel := range channels {
-		assert.Equal(t, "W012A3CDE", channel.Creator)
-	}
-}
-
-func TestBotsInfoHandler(t *testing.T) {
-	s := NewTestServer()
-	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
-	client := slack.New("ABCDEFG")
-	user, err := client.GetUserInfo("123456")
-	assert.NoError(t, err)
-	assert.Equal(t, "W012A3CDE", user.ID)
-	assert.Equal(t, "spengler", user.Name)
-	assert.True(t, user.IsAdmin)
-}
-
-func TestBotDirectMessage(t *testing.T) {
+func TestBotDirectMessageBotHandler(t *testing.T) {
 	s := NewTestServer()
 	go s.Start()
 	slack.SLACK_API = s.GetAPIURL()

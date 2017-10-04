@@ -63,6 +63,8 @@ func (sts *Server) GetGroups() []slack.Group {
 	return sts.groups.channels
 }
 
+/*
+// These are placeholders for now
 // AddChannel adds a new fake channel
 func (sts *Server) AddChannel(c slack.Channel) {
 	sts.channels.Lock()
@@ -76,6 +78,7 @@ func (sts *Server) AddGroup(c slack.Group) {
 	sts.groups.channels = append(sts.groups.channels, c)
 	sts.groups.Unlock()
 }
+*/
 
 // GetSeenInboundMessages returns all messages seen via websocket excluding pings
 func (sts *Server) GetSeenInboundMessages() []string {

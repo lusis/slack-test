@@ -41,6 +41,7 @@ func postProcessMessage(m, hubname string) {
 	channel, err := getHubForServer(hubname)
 	if err != nil {
 		log.Printf("Unable to get server's channels: %s", err.Error())
+		return
 	}
 	seenInboundMessages.Lock()
 	seenInboundMessages.messages = append(seenInboundMessages.messages, m)
@@ -133,7 +134,6 @@ func defaultBotInfoJSON(ctx context.Context) string {
 						"image_72": "https://localhost.localdomain/img72.png"
 					}
 				}
-			}
 		}
 		`, botid, botname)
 }

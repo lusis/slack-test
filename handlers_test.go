@@ -7,7 +7,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPostMessageHandler(t *testing.T) {}
+func TestPostMessageHandler(t *testing.T) {
+	s := NewTestServer()
+	go s.Start()
+	slack.SLACK_API = s.GetAPIURL()
+	client := slack.New("ABCDEFG")
+	channel, tstamp, err := client.PostMessage("foo", t.Name(), slack.PostMessageParameters{})
+	assert.NoError(t, err, "should not error out")
+	assert.Equal(t, "foo", channel, "channel should be correct")
+	assert.NotEmpty(t, tstamp, "timestamp should not be empty")
+}
+
 func TestServerListChannels(t *testing.T) {
 	s := NewTestServer()
 	go s.Start()

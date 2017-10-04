@@ -57,25 +57,25 @@ func newHub() *hub {
 	return h
 }
 
-func addServerToHub(s *Server, channels *messageChannels) {
+func addServerToHub(s *Server, channels *messageChannels) error {
 	if s.ServerAddr == "" {
-		log.Printf("Unable to add an empty server addr to hub")
+		return ErrEmptyServerToHub
 	}
 	masterHub.Lock()
 	masterHub.serverChannels[s.ServerAddr] = channels
 	masterHub.Unlock()
+	return nil
 }
 
 func getHubForServer(serverAddr string) (*messageChannels, error) {
 	if serverAddr == "" {
-		return &messageChannels{}, fmt.Errorf("got passed an empty server addr")
+		return &messageChannels{}, ErrPassedEmptyServerAddr
 	}
 	masterHub.RLock()
 	defer masterHub.RUnlock()
 	channels, ok := masterHub.serverChannels[serverAddr]
 	if !ok {
-		//fmt.Printf("Message Hub: %#v\n", masterHub.serverChannels)
-		return &messageChannels{}, fmt.Errorf("No queues registered for server %s", serverAddr)
+		return &messageChannels{}, ErrNoQueuesRegisteredForServer
 	}
 	return channels, nil
 }

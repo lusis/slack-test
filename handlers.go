@@ -49,12 +49,16 @@ func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 	serverAddr := r.Context().Value(ServerBotHubNameContextKey).(string)
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Printf("error reading body: %s", err.Error())
+		msg := fmt.Sprintf("error reading body: %s", err.Error())
+		log.Printf(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
 	values, vErr := url.ParseQuery(string(data))
 	if vErr != nil {
-		log.Printf("Unable to decode query params: %s", err.Error())
+		msg := fmt.Sprintf("Unable to decode query params: %s", vErr.Error())
+		log.Printf(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
 
@@ -76,30 +80,38 @@ func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 	if attachments != "" {
 		decoded, err := url.QueryUnescape(attachments)
 		if err != nil {
-			log.Printf("got an error trying to decode the attachments param: %s", err.Error())
-		} else {
-			var attaches []slack.Attachment
-			aJErr := json.Unmarshal([]byte(decoded), &attaches)
-			if aJErr != nil {
-				log.Printf("unable to decode attachments string to json: %s", aJErr.Error())
-				return
-			}
-			m.Attachments = attaches
+			msg := fmt.Sprintf("Unable to decode attachments: %s", err.Error())
+			log.Printf(msg)
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
 		}
+		var attaches []slack.Attachment
+		aJErr := json.Unmarshal([]byte(decoded), &attaches)
+		if aJErr != nil {
+			msg := fmt.Sprintf("Unable to decode attachments string to json: %s", aJErr.Error())
+			log.Printf(msg)
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+		m.Attachments = attaches
 	}
 	jsonMessage, jsonErr := json.Marshal(m)
 	if jsonErr != nil {
-		log.Printf("Unable to marshall message: %s", jsonErr.Error())
-	} else {
-		queueForWebsocket(string(jsonMessage), serverAddr)
+		msg := fmt.Sprintf("Unable to marshal message: %s", jsonErr.Error())
+		log.Printf(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
 	}
+	go queueForWebsocket(string(jsonMessage), serverAddr)
 	_, _ = w.Write([]byte(resp))
 }
 
 func rtmStartHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Printf("Error reading body: %s", err.Error())
+		msg := fmt.Sprintf("Error reading body: %s", err.Error())
+		log.Printf(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
 	wsurl := r.Context().Value(ServerWSContextKey).(string)
@@ -128,7 +140,9 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("Unable to upgrade to ws connection: %s", err.Error())
+		msg := fmt.Sprintf("Unable to upgrade to ws connection: %s", err.Error())
+		log.Print(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
 	defer func() { _ = c.Close() }()
@@ -167,7 +181,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			continue
 		} else {
-			postProcessMessage(message, serverAddr)
+			go postProcessMessage(message, serverAddr)
 		}
 	}
 }

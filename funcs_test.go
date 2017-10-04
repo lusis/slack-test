@@ -41,7 +41,7 @@ func TestGetHubMissingServerAddr(t *testing.T) {
 	assert.Nil(t, mc.sent, "sent should be nil")
 	assert.Nil(t, mc.posted, "posted should be nil")
 	assert.Error(t, err, "should return an error")
-	assert.EqualError(t, err, "got passed an empty server addr")
+	assert.EqualError(t, err, ErrPassedEmptyServerAddr.Error())
 }
 
 func TestGetHubNoQueuesForServer(t *testing.T) {
@@ -50,5 +50,11 @@ func TestGetHubNoQueuesForServer(t *testing.T) {
 	assert.Nil(t, mc.sent, "sent should be nil")
 	assert.Nil(t, mc.posted, "posted should be nil")
 	assert.Error(t, err, "should return an error")
-	assert.EqualError(t, err, "No queues registered for server foo")
+	assert.EqualError(t, err, ErrNoQueuesRegisteredForServer.Error())
+}
+
+func TestUnableToAddToHub(t *testing.T) {
+	err := addServerToHub(&Server{}, &messageChannels{})
+	assert.Error(t, err, "should return and error")
+	assert.EqualError(t, err, ErrEmptyServerToHub.Error())
 }

@@ -47,7 +47,10 @@ func NewTestServer() *Server {
 	s.SeenFeed = serverChans.seen
 	s.channels = channels
 	s.groups = groups
-	addServerToHub(s, serverChans)
+	addErr := addServerToHub(s, serverChans)
+	if addErr != nil {
+		log.Printf("Unable to add server to hub: %s", addErr.Error())
+	}
 	return s
 }
 
@@ -148,6 +151,7 @@ func (sts *Server) Stop() {
 
 // Start starts the test server
 func (sts *Server) Start() {
+	log.Print("starting server")
 	sts.server.Start()
 }
 

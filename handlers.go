@@ -115,6 +115,12 @@ func rtmStartHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	wsurl := r.Context().Value(ServerWSContextKey).(string)
+	if wsurl == "" {
+		msg := "missing webservice url from context"
+		log.Printf(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
 
 	fullresponse := generateRTMInfo(r.Context(), wsurl)
 	j, jErr := json.Marshal(fullresponse)

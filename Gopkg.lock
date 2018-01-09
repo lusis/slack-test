@@ -17,7 +17,7 @@
   branch = "master"
   name = "github.com/lusis/go-slackbot"
   packages = ["."]
-  revision = "91c86f30ed8f8143625db2bf391e14de904a24f3"
+  revision = "60d1832022ca5016b3aea2daa2aab621f2fc1d7e"
 
 [[projects]]
   name = "github.com/nlopes/slack"
@@ -34,18 +34,18 @@
 [[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
-  version = "v1.1.4"
+  revision = "b91bfb9ebec76498946beb6af7c0230c7cc7ba6c"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["websocket"]
-  revision = "0a9397675ba34b2845f758fe3cd68828369c6517"
+  revision = "434ec0c7fe3742c984919a691b2018a6e9694425"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ce1de31d9b4fdc6291e658a36e2326db6f747beeae25ffcdc792dadf1d4819e8"
+  inputs-digest = "73c843deff90880c272d277aa4ba860211f32c70fe0472fb8b5e28bf5f1f3527"
   solver-name = "gps-cdcl"
   solver-version = 1

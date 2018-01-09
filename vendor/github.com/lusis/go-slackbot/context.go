@@ -2,7 +2,6 @@ package slackbot
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/nlopes/slack"
 )
@@ -21,7 +20,6 @@ func BotFromContext(ctx context.Context) *Bot {
 	if result, ok := ctx.Value(contextKey(BotContext)).(*Bot); ok {
 		return result
 	}
-	fmt.Printf("Got a nil bot from context: %#v\n", ctx)
 	return nil
 }
 

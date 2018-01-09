@@ -27,7 +27,7 @@ type Handler func(context.Context)
 type ChannelJoinHandler func(context.Context, *Bot, *slack.Channel)
 
 // EventHandler handles events in a generic fashion
-type EventHandler func(context.Context, *Bot, *slack.Event)
+type EventHandler func(context.Context, *Bot, *slack.RTMEvent)
 
 // MessageHandler is a message handler
 type MessageHandler func(ctx context.Context, bot *Bot, msg *slack.MessageEvent)

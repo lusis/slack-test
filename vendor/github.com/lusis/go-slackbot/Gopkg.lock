@@ -2,12 +2,6 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "github.com/adampointer/go-slackbot"
-  packages = ["."]
-  revision = "098fc320f1b3ce6e89704c035cca296dbcaf6c6d"
-
-[[projects]]
   name = "github.com/chris-skud/go-wit"
   packages = ["."]
   revision = "6484c8e57b084d2b1efd9070ec2ff841fe2f458c"
@@ -40,12 +34,12 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","websocket"]
+  packages = ["websocket"]
   revision = "8351a756f30f1297fe94bbf4b767ec589c6ea6d0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3061e3ae88162fec6009d58544b530266a8502cce5823a4f8327375ffb9b9cd9"
+  inputs-digest = "793f9b2023e4ffac541e0a1b35faee74e6677ada06e98a021bee789452477f23"
   solver-name = "gps-cdcl"
   solver-version = 1

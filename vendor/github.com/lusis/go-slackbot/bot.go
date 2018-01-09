@@ -40,6 +40,7 @@ import (
 	"time"
 
 	"context"
+	"log"
 
 	"github.com/nlopes/slack"
 )
@@ -59,6 +60,15 @@ func New(slackToken string) *Bot {
 	return b
 }
 
+// NewWithLogger constructs a new Bot using the slackToken and custom logger instance provided
+func NewWithLogger(slackToken string, l *log.Logger) *Bot {
+	b := &Bot{
+		Client: slack.New(slackToken),
+		logger: l,
+	}
+	return b
+}
+
 // Bot is a bot
 type Bot struct {
 	SimpleRouter
@@ -70,6 +80,8 @@ type Bot struct {
 	channelJoinEventsHandlers []ChannelJoinHandler
 	// Slack UserID of the bot UserID
 	botUserID string
+	// logger instance
+	logger *log.Logger
 	// Slack API
 	Client *slack.Client
 	RTM    *slack.RTM
@@ -115,16 +127,31 @@ func (b *Bot) Run() {
 				}
 			}
 		case *slack.RTMError:
-			fmt.Printf("Error: %s\n", ev.Error())
+			b.logger.Print(ev.Error())
 
 		case *slack.InvalidAuthEvent:
-			fmt.Printf("Invalid credentials")
+			b.logger.Print("Invalid credentials")
 		default:
-			// Ignore other events..
-			// fmt.Printf("Unexpected: %v\n", msg.Data)
+			if len(b.unhandledEventsHandlers) > 0 {
+				for _, h := range b.unhandledEventsHandlers {
+					var handler EventMatch
+					handler.Handler = h
+					go handler.Handle(ctx, b, &msg)
+				}
+			}
 		}
 		//}
 	}
+}
+
+// SetLogger sets the bots logger to a custom one
+func (b *Bot) SetLogger(l *log.Logger) {
+	b.logger = l
+}
+
+// OnUnhandledEvent handles any events not already handled
+func (b *Bot) OnUnhandledEvent(h EventHandler) {
+	b.unhandledEventsHandlers = append(b.unhandledEventsHandlers, h)
 }
 
 // OnChannelJoin handles ChannelJoin events

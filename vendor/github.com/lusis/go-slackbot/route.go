@@ -52,6 +52,11 @@ func (cjm *ChannelJoinMatch) Handle(ctx context.Context, b *Bot, channel *slack.
 	cjm.Handler(ctx, b, channel)
 }
 
+// Handle handles any unspecified RTM events
+func (em *EventMatch) Handle(ctx context.Context, b *Bot, ev *slack.RTMEvent) {
+	em.Handler(ctx, b, ev)
+}
+
 // Match matches
 func (r *Route) Match(ctx context.Context, match *RouteMatch) (bool, context.Context) {
 	if r.preprocessor != nil {
@@ -140,7 +145,10 @@ func (rm *RegexpMatcher) Match(ctx context.Context) (bool, context.Context) {
 	// A message be receded by a direct mention. For simplicity sake, strip out any potention direct mentions first
 	text := StripDirectMention(msg.Text)
 	// now consider stripped text against regular expression
-	re := regexp.MustCompile(rm.regex)
+	re, reErr := regexp.Compile(rm.regex)
+	if reErr != nil {
+		return false, ctx
+	}
 	matched, matches := namedRegexpParse(text, re)
 	if !matched {
 		return false, ctx

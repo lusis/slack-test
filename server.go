@@ -147,6 +147,12 @@ func (sts *Server) GetWSURL() string {
 // Stop stops the test server
 func (sts *Server) Stop() {
 	sts.server.Close()
+
+	// The outstanding sent channels need to be closed
+	// to prevent the listening goroutines from leaking.
+	for _, channels := range masterHub.serverChannels {
+		close(channels.sent)
+	}
 }
 
 // Start starts the test server

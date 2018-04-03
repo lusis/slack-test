@@ -13,7 +13,7 @@ import (
 func queueForWebsocket(s, hubname string) {
 	channel, err := getHubForServer(hubname)
 	if err != nil {
-		log.Printf("Unable to get server's channels: %s", err.Error())
+		return
 	}
 	seenOutboundMessages.Lock()
 	seenOutboundMessages.messages = append(seenOutboundMessages.messages, s)
@@ -25,7 +25,6 @@ func queueForWebsocket(s, hubname string) {
 func handlePendingMessages(c *websocket.Conn, hubname string) {
 	channel, err := getHubForServer(hubname)
 	if err != nil {
-		log.Printf("Unable to get server's channels: %s", err.Error())
 		return
 	}
 	for m := range channel.sent {
@@ -40,7 +39,6 @@ func handlePendingMessages(c *websocket.Conn, hubname string) {
 func postProcessMessage(m, hubname string) {
 	channel, err := getHubForServer(hubname)
 	if err != nil {
-		log.Printf("Unable to get server's channels: %s", err.Error())
 		return
 	}
 	seenInboundMessages.Lock()

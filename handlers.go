@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -50,14 +49,12 @@ func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		msg := fmt.Sprintf("error reading body: %s", err.Error())
-		log.Printf(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
 	values, vErr := url.ParseQuery(string(data))
 	if vErr != nil {
 		msg := fmt.Sprintf("Unable to decode query params: %s", vErr.Error())
-		log.Printf(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
@@ -81,7 +78,6 @@ func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 		decoded, err := url.QueryUnescape(attachments)
 		if err != nil {
 			msg := fmt.Sprintf("Unable to decode attachments: %s", err.Error())
-			log.Printf(msg)
 			http.Error(w, msg, http.StatusInternalServerError)
 			return
 		}
@@ -89,7 +85,6 @@ func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 		aJErr := json.Unmarshal([]byte(decoded), &attaches)
 		if aJErr != nil {
 			msg := fmt.Sprintf("Unable to decode attachments string to json: %s", aJErr.Error())
-			log.Printf(msg)
 			http.Error(w, msg, http.StatusInternalServerError)
 			return
 		}
@@ -98,7 +93,6 @@ func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 	jsonMessage, jsonErr := json.Marshal(m)
 	if jsonErr != nil {
 		msg := fmt.Sprintf("Unable to marshal message: %s", jsonErr.Error())
-		log.Printf(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
@@ -110,14 +104,12 @@ func rtmStartHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		msg := fmt.Sprintf("Error reading body: %s", err.Error())
-		log.Printf(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
 	wsurl := r.Context().Value(ServerWSContextKey).(string)
 	if wsurl == "" {
 		msg := "missing webservice url from context"
-		log.Printf(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
@@ -126,14 +118,10 @@ func rtmStartHandler(w http.ResponseWriter, r *http.Request) {
 	j, jErr := json.Marshal(fullresponse)
 	if jErr != nil {
 		msg := fmt.Sprintf("Unable to marshal response: %s", jErr.Error())
-		log.Printf("Error: %s", msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	_, wErr := w.Write(j)
-	if wErr != nil {
-		log.Printf("Error writing response: %s", wErr.Error())
-	}
+	_, _ = w.Write(j)
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
@@ -147,7 +135,6 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		msg := fmt.Sprintf("Unable to upgrade to ws connection: %s", err.Error())
-		log.Print(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
@@ -157,21 +144,17 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		mt, messageBytes, err := c.ReadMessage()
 		if err != nil {
-			log.Printf("read error: %s", err.Error())
 			continue
 		}
 		message := string(messageBytes)
 		evt := &slack.Event{}
 		if err := json.Unmarshal(messageBytes, evt); err != nil {
-			log.Printf("Error unmarshalling message: %s", err.Error())
-			log.Printf("failed message: %s", string(message))
 			continue
 		}
 		if evt.Type == "ping" {
 			p := &slack.Ping{}
 			jErr := json.Unmarshal(messageBytes, p)
 			if jErr != nil {
-				log.Printf("Unable to decode ping event: %s", jErr.Error())
 				continue
 			}
 			//log.Print("responding to slack ping")
@@ -182,7 +165,6 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			j, _ := json.Marshal(pong)
 			wErr := c.WriteMessage(mt, j)
 			if wErr != nil {
-				log.Printf("error writing pong back to socket: %s", wErr.Error())
 				continue
 			}
 			continue

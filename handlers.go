@@ -138,7 +138,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	defer func() { _ = c.Close() }()
+	//defer func() { _ = c.Close() }()
 	serverAddr := r.Context().Value(ServerBotHubNameContextKey).(string)
 	go handlePendingMessages(c, serverAddr)
 	for {
@@ -157,7 +157,6 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			if jErr != nil {
 				continue
 			}
-			//log.Print("responding to slack ping")
 			pong := &slack.Pong{
 				ReplyTo: p.ID,
 				Type:    "pong",

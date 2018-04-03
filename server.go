@@ -3,6 +3,7 @@ package slacktest
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -41,6 +42,9 @@ func NewTestServer(opts ...ServerOption) (*Server, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+	if s.Logger == nil {
+		s.Logger = log.New(ioutil.Discard, "slacktest", 1)
 	}
 	serverChans := newMessageChannels()
 	seenInboundMessages = &messageCollection{}

@@ -144,7 +144,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		mt, messageBytes, err := c.ReadMessage()
 		if err != nil {
-			continue
+			break
 		}
 		message := string(messageBytes)
 		evt := &slack.Event{}

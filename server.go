@@ -9,6 +9,7 @@ import (
 	"time"
 
 	slack "github.com/nlopes/slack"
+	"github.com/pkg/errors"
 )
 
 func newMessageChannels() *messageChannels {
@@ -21,14 +22,32 @@ func newMessageChannels() *messageChannels {
 	return &mc
 }
 
+// ServerOption is a functional option type for new servers
+type ServerOption func(*Server) error
+
+// WithLogger sets a custom logger for the server
+func WithLogger(l *log.Logger) ServerOption {
+	return func(s *Server) error {
+		s.Logger = l
+		return nil
+	}
+}
+
 // NewTestServer returns a slacktest.Server ready to be started
-func NewTestServer() *Server {
+func NewTestServer(opts ...ServerOption) (*Server, error) {
+	s := &Server{}
+	for _, opt := range opts {
+		err := opt(s)
+		if err != nil {
+			return nil, err
+		}
+	}
 	serverChans := newMessageChannels()
 	seenInboundMessages = &messageCollection{}
 	seenOutboundMessages = &messageCollection{}
 	channels := &serverChannels{}
 	groups := &serverGroups{}
-	s := &Server{}
+
 	mux := http.NewServeMux()
 	mux.Handle("/ws", contextHandler(s, wsHandler))
 	mux.Handle("/rtm.start", contextHandler(s, rtmStartHandler))
@@ -49,9 +68,9 @@ func NewTestServer() *Server {
 	s.groups = groups
 	addErr := addServerToHub(s, serverChans)
 	if addErr != nil {
-		log.Printf("Unable to add server to hub: %s", addErr.Error())
+		return nil, errors.Wrap(addErr, "unable to add server to hub")
 	}
-	return s
+	return s, nil
 }
 
 // GetChannels returns all the fake channels registered
@@ -65,23 +84,6 @@ func (sts *Server) GetChannels() []slack.Channel {
 func (sts *Server) GetGroups() []slack.Group {
 	return sts.groups.channels
 }
-
-/*
-// These are placeholders for now
-// AddChannel adds a new fake channel
-func (sts *Server) AddChannel(c slack.Channel) {
-	sts.channels.Lock()
-	sts.channels.channels = append(sts.channels.channels, c)
-	sts.channels.Unlock()
-}
-
-// AddGroup adds a new fake group
-func (sts *Server) AddGroup(c slack.Group) {
-	sts.groups.Lock()
-	sts.groups.channels = append(sts.groups.channels, c)
-	sts.groups.Unlock()
-}
-*/
 
 // GetSeenInboundMessages returns all messages seen via websocket excluding pings
 func (sts *Server) GetSeenInboundMessages() []string {
@@ -151,7 +153,6 @@ func (sts *Server) Stop() {
 
 // Start starts the test server
 func (sts *Server) Start() {
-	log.Print("starting server")
 	sts.server.Start()
 }
 
@@ -165,7 +166,7 @@ func (sts *Server) SendMessageToBot(channel, msg string) {
 	m.Timestamp = fmt.Sprintf("%d", time.Now().Unix())
 	j, jErr := json.Marshal(m)
 	if jErr != nil {
-		log.Printf("Unable to marshal message for bot: %s", jErr.Error())
+		sts.Logger.Printf("unable to marshal message for bot: %s", jErr.Error())
 		return
 	}
 	go queueForWebsocket(string(j), sts.ServerAddr)
@@ -181,7 +182,7 @@ func (sts *Server) SendDirectMessageToBot(msg string) {
 	m.Timestamp = fmt.Sprintf("%d", time.Now().Unix())
 	j, jErr := json.Marshal(m)
 	if jErr != nil {
-		log.Printf("Unable to marshal private message for bot: %s", jErr.Error())
+		sts.Logger.Printf("Unable to marshal private message for bot: %s", jErr.Error())
 		return
 	}
 	go queueForWebsocket(string(j), sts.ServerAddr)
@@ -197,7 +198,7 @@ func (sts *Server) SendMessageToChannel(channel, msg string) {
 	m.Timestamp = fmt.Sprintf("%d", time.Now().Unix())
 	j, jErr := json.Marshal(m)
 	if jErr != nil {
-		log.Printf("Unable to marshal message for channel: %s", jErr.Error())
+		sts.Logger.Printf("Unable to marshal message for channel: %s", jErr.Error())
 		return
 	}
 	stringMsg := string(j)

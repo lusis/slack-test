@@ -1,0 +1,4 @@
+.env.local
+*.out
+*.test
+*.cov

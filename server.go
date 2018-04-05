@@ -55,11 +55,13 @@ func NewTestServer(opts ...ServerOption) (*Server, error) {
 	mux := http.NewServeMux()
 	mux.Handle("/ws", contextHandler(s, wsHandler))
 	mux.Handle("/rtm.start", contextHandler(s, rtmStartHandler))
+	mux.Handle("/rtm.connect", contextHandler(s, rtmStartHandler))
 	mux.Handle("/chat.postMessage", contextHandler(s, postMessageHandler))
 	mux.Handle("/channels.list", contextHandler(s, listChannelsHandler))
 	mux.Handle("/groups.list", contextHandler(s, listGroupsHandler))
 	mux.Handle("/users.info", contextHandler(s, usersInfoHandler))
 	mux.Handle("/bots.info", contextHandler(s, botsInfoHandler))
+	mux.Handle("/", contextHandler(s, notFoundHandler))
 	httpserver := httptest.NewUnstartedServer(mux)
 	addr := httpserver.Listener.Addr().String()
 

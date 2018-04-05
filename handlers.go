@@ -15,6 +15,7 @@ import (
 
 func contextHandler(server *Server, next http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server.Logger.Printf("got a request for %s", r.URL.String())
 		ctx := context.WithValue(r.Context(), ServerURLContextKey, server.GetAPIURL())
 		ctx = context.WithValue(ctx, ServerWSContextKey, server.GetWSURL())
 		ctx = context.WithValue(ctx, ServerBotNameContextKey, server.BotName)
@@ -25,6 +26,10 @@ func contextHandler(server *Server, next http.HandlerFunc) http.Handler {
 	})
 }
 
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+	_, _ = w.Write([]byte(fmt.Sprintf("we don't yet support %s in slack-test", r.URL.String())))
+}
 func usersInfoHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte(defaultUsersInfoJSON))
 }

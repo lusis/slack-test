@@ -54,7 +54,7 @@ func TestBotDirectMessageBotHandler(t *testing.T) {
 	slack.SLACK_API = s.GetAPIURL()
 	s.SendDirectMessageToBot(t.Name())
 	expectedMsg := fmt.Sprintf(t.Name())
-	time.Sleep(5)
+	time.Sleep(10)
 	require.True(t, s.SawOutgoingMessage(expectedMsg))
 	s.Stop()
 }

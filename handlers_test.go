@@ -96,3 +96,18 @@ func TestListChannelsHandler(t *testing.T) {
 	require.Equal(t, "Fun times", otherChan.Topic.Value)
 	require.True(t, otherChan.IsMember, "should be in channel")
 }
+
+func TestConversationHistoryHandler(t *testing.T) {
+	s, err := NewTestServer()
+	require.NoError(t, err)
+	go s.Start()
+	slack.SLACK_API = s.GetAPIURL()
+	client := slack.New("ABCDEFG")
+	params := slack.GetConversationHistoryParameters{
+		ChannelID: "C12345",
+	}
+	hist, err := client.GetConversationHistory(&params)
+	require.NoError(t, err)
+	require.Len(t, hist.Messages, 5)
+	require.Equal(t, defaultNonBotUserID, hist.Messages[0].User)
+}

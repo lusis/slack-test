@@ -48,6 +48,11 @@ func listGroupsHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte(defaultGroupsListJSON))
 }
 
+// handle conversations.history
+func conversationHistoryHandler(w http.ResponseWriter, r *http.Request) {
+	_, _ = w.Write([]byte(defaultConversationHistoryJSON))
+}
+
 // handle chat.postMessage
 func postMessageHandler(w http.ResponseWriter, r *http.Request) {
 	serverAddr := r.Context().Value(ServerBotHubNameContextKey).(string)

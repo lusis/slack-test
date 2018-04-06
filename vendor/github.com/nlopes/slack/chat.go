@@ -1,6 +1,7 @@
 package slack
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/url"
@@ -9,9 +10,10 @@ import (
 
 const (
 	DEFAULT_MESSAGE_USERNAME         = ""
-	DEFAULT_MESSAGE_THREAD_TIMESTAMP = ""
+	DEFAULT_MESSAGE_REPLY_BROADCAST  = false
 	DEFAULT_MESSAGE_ASUSER           = false
 	DEFAULT_MESSAGE_PARSE            = ""
+	DEFAULT_MESSAGE_THREAD_TIMESTAMP = ""
 	DEFAULT_MESSAGE_LINK_NAMES       = 0
 	DEFAULT_MESSAGE_UNFURL_LINKS     = false
 	DEFAULT_MESSAGE_UNFURL_MEDIA     = true
@@ -30,11 +32,11 @@ type chatResponseFull struct {
 
 // PostMessageParameters contains all the parameters necessary (including the optional ones) for a PostMessage() request
 type PostMessageParameters struct {
-	Text            string       `json:"text"`
 	Username        string       `json:"user_name"`
 	AsUser          bool         `json:"as_user"`
 	Parse           string       `json:"parse"`
 	ThreadTimestamp string       `json:"thread_ts"`
+	ReplyBroadcast  bool         `json:"reply_broadcast"`
 	LinkNames       int          `json:"link_names"`
 	Attachments     []Attachment `json:"attachments"`
 	UnfurlLinks     bool         `json:"unfurl_links"`
@@ -43,28 +45,40 @@ type PostMessageParameters struct {
 	IconEmoji       string       `json:"icon_emoji"`
 	Markdown        bool         `json:"mrkdwn,omitempty"`
 	EscapeText      bool         `json:"escape_text"`
+
+	// chat.postEphemeral support
+	Channel string `json:"channel"`
+	User    string `json:"user"`
 }
 
 // NewPostMessageParameters provides an instance of PostMessageParameters with all the sane default values set
 func NewPostMessageParameters() PostMessageParameters {
 	return PostMessageParameters{
-		Username:    DEFAULT_MESSAGE_USERNAME,
-		AsUser:      DEFAULT_MESSAGE_ASUSER,
-		Parse:       DEFAULT_MESSAGE_PARSE,
-		LinkNames:   DEFAULT_MESSAGE_LINK_NAMES,
-		Attachments: nil,
-		UnfurlLinks: DEFAULT_MESSAGE_UNFURL_LINKS,
-		UnfurlMedia: DEFAULT_MESSAGE_UNFURL_MEDIA,
-		IconURL:     DEFAULT_MESSAGE_ICON_URL,
-		IconEmoji:   DEFAULT_MESSAGE_ICON_EMOJI,
-		Markdown:    DEFAULT_MESSAGE_MARKDOWN,
-		EscapeText:  DEFAULT_MESSAGE_ESCAPE_TEXT,
+		Username:        DEFAULT_MESSAGE_USERNAME,
+		User:            DEFAULT_MESSAGE_USERNAME,
+		AsUser:          DEFAULT_MESSAGE_ASUSER,
+		Parse:           DEFAULT_MESSAGE_PARSE,
+		ThreadTimestamp: DEFAULT_MESSAGE_THREAD_TIMESTAMP,
+		LinkNames:       DEFAULT_MESSAGE_LINK_NAMES,
+		Attachments:     nil,
+		UnfurlLinks:     DEFAULT_MESSAGE_UNFURL_LINKS,
+		UnfurlMedia:     DEFAULT_MESSAGE_UNFURL_MEDIA,
+		IconURL:         DEFAULT_MESSAGE_ICON_URL,
+		IconEmoji:       DEFAULT_MESSAGE_ICON_EMOJI,
+		Markdown:        DEFAULT_MESSAGE_MARKDOWN,
+		EscapeText:      DEFAULT_MESSAGE_ESCAPE_TEXT,
 	}
 }
 
 // DeleteMessage deletes a message in a channel
 func (api *Client) DeleteMessage(channel, messageTimestamp string) (string, string, error) {
-	respChannel, respTimestamp, _, err := api.SendMessage(channel, MsgOptionDelete(messageTimestamp))
+	respChannel, respTimestamp, _, err := api.SendMessageContext(context.Background(), channel, MsgOptionDelete(messageTimestamp))
+	return respChannel, respTimestamp, err
+}
+
+// DeleteMessageContext deletes a message in a channel with a custom context
+func (api *Client) DeleteMessageContext(ctx context.Context, channel, messageTimestamp string) (string, string, error) {
+	respChannel, respTimestamp, _, err := api.SendMessageContext(ctx, channel, MsgOptionDelete(messageTimestamp))
 	return respChannel, respTimestamp, err
 }
 
@@ -72,7 +86,8 @@ func (api *Client) DeleteMessage(channel, messageTimestamp string) (string, stri
 // Message is escaped by default according to https://api.slack.com/docs/formatting
 // Use http://davestevens.github.io/slack-message-builder/ to help crafting your message.
 func (api *Client) PostMessage(channel, text string, params PostMessageParameters) (string, string, error) {
-	respChannel, respTimestamp, _, err := api.SendMessage(
+	respChannel, respTimestamp, _, err := api.SendMessageContext(
+		context.Background(),
 		channel,
 		MsgOptionText(text, params.EscapeText),
 		MsgOptionAttachments(params.Attachments...),
@@ -81,19 +96,73 @@ func (api *Client) PostMessage(channel, text string, params PostMessageParameter
 	return respChannel, respTimestamp, err
 }
 
+// PostMessageContext sends a message to a channel with a custom context
+// For more details, see PostMessage documentation
+func (api *Client) PostMessageContext(ctx context.Context, channel, text string, params PostMessageParameters) (string, string, error) {
+	respChannel, respTimestamp, _, err := api.SendMessageContext(
+		ctx,
+		channel,
+		MsgOptionText(text, params.EscapeText),
+		MsgOptionAttachments(params.Attachments...),
+		MsgOptionPostMessageParameters(params),
+	)
+	return respChannel, respTimestamp, err
+}
+
+// PostEphemeral sends an ephemeral message to a user in a channel.
+// Message is escaped by default according to https://api.slack.com/docs/formatting
+// Use http://davestevens.github.io/slack-message-builder/ to help crafting your message.
+func (api *Client) PostEphemeral(channel, userID string, options ...MsgOption) (string, error) {
+	options = append(options, MsgOptionPostEphemeral())
+	return api.PostEphemeralContext(
+		context.Background(),
+		channel,
+		userID,
+		options...,
+	)
+}
+
+// PostEphemeralContext sends an ephemeal message to a user in a channel with a custom context
+// For more details, see PostEphemeral documentation
+func (api *Client) PostEphemeralContext(ctx context.Context, channel, userID string, options ...MsgOption) (string, error) {
+	path, values, err := ApplyMsgOptions(api.token, channel, options...)
+	if err != nil {
+		return "", err
+	}
+
+	values.Add("user", userID)
+
+	response, err := chatRequest(ctx, api.httpclient, path, values, api.debug)
+	if err != nil {
+		return "", err
+	}
+
+	return response.Timestamp, nil
+}
+
 // UpdateMessage updates a message in a channel
 func (api *Client) UpdateMessage(channel, timestamp, text string) (string, string, string, error) {
-	return api.SendMessage(channel, MsgOptionUpdate(timestamp), MsgOptionText(text, true))
+	return api.UpdateMessageContext(context.Background(), channel, timestamp, text)
+}
+
+// UpdateMessageContext updates a message in a channel
+func (api *Client) UpdateMessageContext(ctx context.Context, channel, timestamp, text string) (string, string, string, error) {
+	return api.SendMessageContext(ctx, channel, MsgOptionUpdate(timestamp), MsgOptionText(text, true))
 }
 
 // SendMessage more flexible method for configuring messages.
 func (api *Client) SendMessage(channel string, options ...MsgOption) (string, string, string, error) {
-	channel, values, err := ApplyMsgOptions(api.config.token, channel, options...)
+	return api.SendMessageContext(context.Background(), channel, options...)
+}
+
+// SendMessageContext more flexible method for configuring messages with a custom context.
+func (api *Client) SendMessageContext(ctx context.Context, channel string, options ...MsgOption) (string, string, string, error) {
+	channel, values, err := ApplyMsgOptions(api.token, channel, options...)
 	if err != nil {
 		return "", "", "", err
 	}
 
-	response, err := chatRequest(channel, values, api.debug)
+	response, err := chatRequest(ctx, api.httpclient, channel, values, api.debug)
 	if err != nil {
 		return "", "", "", err
 	}
@@ -125,9 +194,9 @@ func escapeMessage(message string) string {
 	return replacer.Replace(message)
 }
 
-func chatRequest(path string, values url.Values, debug bool) (*chatResponseFull, error) {
+func chatRequest(ctx context.Context, client HTTPRequester, path string, values url.Values, debug bool) (*chatResponseFull, error) {
 	response := &chatResponseFull{}
-	err := post(path, values, response, debug)
+	err := post(ctx, client, path, values, response, debug)
 	if err != nil {
 		return nil, err
 	}
@@ -140,9 +209,10 @@ func chatRequest(path string, values url.Values, debug bool) (*chatResponseFull,
 type sendMode string
 
 const (
-	chatUpdate      sendMode = "chat.update"
-	chatPostMessage sendMode = "chat.postMessage"
-	chatDelete      sendMode = "chat.delete"
+	chatUpdate        sendMode = "chat.update"
+	chatPostMessage   sendMode = "chat.postMessage"
+	chatDelete        sendMode = "chat.delete"
+	chatPostEphemeral sendMode = "chat.postEphemeral"
 )
 
 type sendConfig struct {
@@ -157,6 +227,15 @@ type MsgOption func(*sendConfig) error
 func MsgOptionPost() MsgOption {
 	return func(config *sendConfig) error {
 		config.mode = chatPostMessage
+		config.values.Del("ts")
+		return nil
+	}
+}
+
+// MsgOptionPostEphemeral posts an ephemeral message
+func MsgOptionPostEphemeral() MsgOption {
+	return func(config *sendConfig) error {
+		config.mode = chatPostEphemeral
 		config.values.Del("ts")
 		return nil
 	}
@@ -225,6 +304,14 @@ func MsgOptionEnableLinkUnfurl() MsgOption {
 	}
 }
 
+// MsgOptionDisableLinkUnfurl disables link unfurling
+func MsgOptionDisableLinkUnfurl() MsgOption {
+	return func(config *sendConfig) error {
+		config.values.Set("unfurl_links", "false")
+		return nil
+	}
+}
+
 // MsgOptionDisableMediaUnfurl disables media unfurling.
 func MsgOptionDisableMediaUnfurl() MsgOption {
 	return func(config *sendConfig) error {
@@ -246,6 +333,11 @@ func MsgOptionPostMessageParameters(params PostMessageParameters) MsgOption {
 	return func(config *sendConfig) error {
 		if params.Username != DEFAULT_MESSAGE_USERNAME {
 			config.values.Set("username", string(params.Username))
+		}
+
+		// chat.postEphemeral support
+		if params.User != DEFAULT_MESSAGE_USERNAME {
+			config.values.Set("user", params.User)
 		}
 
 		// never generates an error.
@@ -282,6 +374,9 @@ func MsgOptionPostMessageParameters(params PostMessageParameters) MsgOption {
 
 		if params.ThreadTimestamp != DEFAULT_MESSAGE_THREAD_TIMESTAMP {
 			config.values.Set("thread_ts", params.ThreadTimestamp)
+		}
+		if params.ReplyBroadcast != DEFAULT_MESSAGE_REPLY_BROADCAST {
+			config.values.Set("reply_broadcast", "true")
 		}
 
 		return nil

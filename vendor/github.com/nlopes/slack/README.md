@@ -1,6 +1,8 @@
 Slack API in Go [![GoDoc](https://godoc.org/github.com/nlopes/slack?status.svg)](https://godoc.org/github.com/nlopes/slack) [![Build Status](https://travis-ci.org/nlopes/slack.svg)](https://travis-ci.org/nlopes/slack)
 ===============
 
+[![Join the chat at https://gitter.im/go-slack/Lobby](https://badges.gitter.im/go-slack/Lobby.svg)](https://gitter.im/go-slack/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This library supports most if not all of the `api.slack.com` REST
 calls, as well as the Real-Time Messaging protocol over websocket, in
 a fully managed way.
@@ -17,7 +19,7 @@ Please check [0.1.0](https://github.com/nlopes/slack/releases/tag/v0.1.0)
 
 ### CHANGELOG.md
 
-As of this version a [CHANGELOG.md](https://github.com/nlopes/slack/blob/master/README.md) is available. Please visit it for updates. 
+As of this version a [CHANGELOG.md](https://github.com/nlopes/slack/blob/master/CHANGELOG.md) is available. Please visit it for updates.
 
 ## Installing
 

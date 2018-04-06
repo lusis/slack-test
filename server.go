@@ -61,6 +61,7 @@ func NewTestServer(opts ...ServerOption) (*Server, error) {
 	mux.Handle("/groups.list", contextHandler(s, listGroupsHandler))
 	mux.Handle("/users.info", contextHandler(s, usersInfoHandler))
 	mux.Handle("/bots.info", contextHandler(s, botsInfoHandler))
+	mux.Handle("/conversations.history", contextHandler(s, conversationHistoryHandler))
 	mux.Handle("/", contextHandler(s, notFoundHandler))
 	httpserver := httptest.NewUnstartedServer(mux)
 	addr := httpserver.Listener.Addr().String()

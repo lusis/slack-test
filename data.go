@@ -176,3 +176,125 @@ var defaultNonBotUser = fmt.Sprintf(`
 			"locale": "en-US"
 		}
 	`, defaultNonBotUserID, defaultTeamID, defaultNonBotUserName, defaultNonBotUserName, defaultNonBotUserName, defaultTeamID)
+
+var defaultConversationHistoryJSON = fmt.Sprintf(`
+	{
+        "ok": true,
+        "latest": "1522942333",
+        "oldest": "1522939726.000713",
+        "messages": [
+          {
+                "type": "message",
+                "user": "%s",
+                "text": "this has replies",
+                "thread_ts": "1522941680.000626",
+                "reply_count": 2,
+                "replies": [
+                  {
+                        "user": "%s",
+                        "ts": "1522941699.000203"
+                  },
+                  {
+                        "user": "%s",
+                        "ts": "1522941709.000423"
+                  }
+                ],
+                "subscribed": false,
+                "unread_count": 2,
+                "ts": "1522941680.000626"
+          },
+          {
+                "type": "message",
+                "user": "%s",
+                "text": "this has reactions",
+                "ts": "1522940379.000820",
+                "reactions": [
+                  {
+                        "name": "salute",
+                        "users": [
+                          "U1234"
+                        ],
+                        "count": 1
+                  }
+                ]
+          },
+          {
+                "type": "message",
+                "subtype": "file_share",
+                "text": "<@U1234> uploaded a file: <http://file/-.txt|Untitled>",
+                "file": {
+                  "id": "F1234",
+                  "created": 1522939852,
+                  "timestamp": 1522939852,
+                  "name": "-.sh",
+                  "title": "Untitled",
+                  "mimetype": "text/plain",
+                  "filetype": "shell",
+                  "pretty_type": "Shell",
+                  "user": "U1234",
+                  "editable": true,
+                  "size": 473,
+                  "mode": "snippet",
+                  "is_external": false,
+                  "external_type": "",
+                  "is_public": true,
+                  "public_url_shared": false,
+                  "display_as_bot": false,
+                  "username": "",
+                  "url_private": "https://file/-.txt",
+                  "url_private_download": "http://files/download/-.txt",
+                  "permalink": "http://files/files/U1234/F1234/-.txt",
+                  "permalink_public": "http://files/1",
+                  "edit_link": "http://files/files/U1234/F1233/-.txt/edit",
+                  "preview": "<long string>",
+                  "preview_highlight": "<preview highlight>",
+                  "lines": 1,
+                  "lines_more": 0,
+                  "preview_is_truncated": false,
+                  "channels": [
+                        "C6KDDU879"
+                  ],
+                  "groups": [],
+                  "ims": [],
+                  "comments_count": 0
+                },
+                "user": "U753E0PEV",
+                "upload": true,
+                "display_as_bot": false,
+                "username": "bob.smith",
+                "bot_id": null,
+                "ts": "1522939853.000323"
+          },
+          {
+                "type": "message",
+                "user": "%s",
+                "text": "",
+                "bot_id": "%s",
+                "attachments": [
+                  {
+                        "author_name": "Bob",
+                        "fallback": "Bob did a thing",
+                        "title": "Foo Created",
+                        "id": 1,
+                        "color": "ff0000",
+                        "fields": [
+                          {
+                                "title": "ID",
+                                "value": "65",
+                                "short": true
+                          }
+                        ]
+                  }
+                ],
+                "ts": "1522939727.000354"
+          },
+          {
+                "type": "message",
+                "user": "U1234",
+                "text": "<@%s> hey bot",
+                "ts": "1522939726.000713"
+          }
+        ],
+        "has_more": false,
+        "pin_count": 0
+  }`, defaultNonBotUserID, defaultNonBotUserID, defaultNonBotUserID, defaultNonBotUserID, defaultBotID, defaultBotID, defaultBotID)

@@ -17,13 +17,19 @@
   branch = "master"
   name = "github.com/lusis/go-slackbot"
   packages = ["."]
-  revision = "60d1832022ca5016b3aea2daa2aab621f2fc1d7e"
+  revision = "401027ccfef5cf163c6d2c328f80e6f4dec63274"
 
 [[projects]]
   name = "github.com/nlopes/slack"
   packages = ["."]
-  revision = "c86337c0ef2486a15edd804355d9c73d2f2caed1"
-  version = "v0.1.0"
+  revision = "8ab4d0b364ef1e9af5d102531da20d5ec902b6c4"
+  version = "v0.2.0"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -33,19 +39,16 @@
 
 [[projects]]
   name = "github.com/stretchr/testify"
-  packages = ["assert"]
-  revision = "b91bfb9ebec76498946beb6af7c0230c7cc7ba6c"
-  version = "v1.2.0"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/net"
-  packages = ["websocket"]
-  revision = "434ec0c7fe3742c984919a691b2018a6e9694425"
+  packages = [
+    "assert",
+    "require"
+  ]
+  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
+  version = "v1.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "73c843deff90880c272d277aa4ba860211f32c70fe0472fb8b5e28bf5f1f3527"
+  inputs-digest = "105b5518e9a00a705bb1cf6e64e81c9800358f886087d5e15c1129efb13765ad"
   solver-name = "gps-cdcl"
   solver-version = 1

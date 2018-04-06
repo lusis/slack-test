@@ -2,12 +2,6 @@
 
 
 [[projects]]
-  name = "github.com/chris-skud/go-wit"
-  packages = ["."]
-  revision = "6484c8e57b084d2b1efd9070ec2ff841fe2f458c"
-  version = "0.3"
-
-[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -28,18 +22,18 @@
 [[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
-  version = "v1.1.4"
+  revision = "b91bfb9ebec76498946beb6af7c0230c7cc7ba6c"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["websocket"]
-  revision = "8351a756f30f1297fe94bbf4b767ec589c6ea6d0"
+  revision = "434ec0c7fe3742c984919a691b2018a6e9694425"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "793f9b2023e4ffac541e0a1b35faee74e6677ada06e98a021bee789452477f23"
+  inputs-digest = "c130e235fc5be126c842c1730ddd5cb786806a03c047c86d167cc14d07c8ce06"
   solver-name = "gps-cdcl"
   solver-version = 1

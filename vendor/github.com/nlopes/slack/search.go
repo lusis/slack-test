@@ -1,6 +1,7 @@
 package slack
 
 import (
+	"context"
 	"errors"
 	"net/url"
 	"strconv"
@@ -80,9 +81,9 @@ func NewSearchParameters() SearchParameters {
 	}
 }
 
-func (api *Client) _search(path, query string, params SearchParameters, files, messages bool) (response *searchResponseFull, error error) {
+func (api *Client) _search(ctx context.Context, path, query string, params SearchParameters, files, messages bool) (response *searchResponseFull, error error) {
 	values := url.Values{
-		"token": {api.config.token},
+		"token": {api.token},
 		"query": {query},
 	}
 	if params.Sort != DEFAULT_SEARCH_SORT {
@@ -100,8 +101,9 @@ func (api *Client) _search(path, query string, params SearchParameters, files, m
 	if params.Page != DEFAULT_SEARCH_PAGE {
 		values.Add("page", strconv.Itoa(params.Page))
 	}
+
 	response = &searchResponseFull{}
-	err := post(path, values, response, api.debug)
+	err := post(ctx, api.httpclient, path, values, response, api.debug)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +115,11 @@ func (api *Client) _search(path, query string, params SearchParameters, files, m
 }
 
 func (api *Client) Search(query string, params SearchParameters) (*SearchMessages, *SearchFiles, error) {
-	response, err := api._search("search.all", query, params, true, true)
+	return api.SearchContext(context.Background(), query, params)
+}
+
+func (api *Client) SearchContext(ctx context.Context, query string, params SearchParameters) (*SearchMessages, *SearchFiles, error) {
+	response, err := api._search(ctx, "search.all", query, params, true, true)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -121,7 +127,11 @@ func (api *Client) Search(query string, params SearchParameters) (*SearchMessage
 }
 
 func (api *Client) SearchFiles(query string, params SearchParameters) (*SearchFiles, error) {
-	response, err := api._search("search.files", query, params, true, false)
+	return api.SearchFilesContext(context.Background(), query, params)
+}
+
+func (api *Client) SearchFilesContext(ctx context.Context, query string, params SearchParameters) (*SearchFiles, error) {
+	response, err := api._search(ctx, "search.files", query, params, true, false)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +139,11 @@ func (api *Client) SearchFiles(query string, params SearchParameters) (*SearchFi
 }
 
 func (api *Client) SearchMessages(query string, params SearchParameters) (*SearchMessages, error) {
-	response, err := api._search("search.messages", query, params, false, true)
+	return api.SearchMessagesContext(context.Background(), query, params)
+}
+
+func (api *Client) SearchMessagesContext(ctx context.Context, query string, params SearchParameters) (*SearchMessages, error) {
+	response, err := api._search(ctx, "search.messages", query, params, false, true)
 	if err != nil {
 		return nil, err
 	}

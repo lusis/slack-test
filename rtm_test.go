@@ -12,7 +12,7 @@ func TestRTMInfo(t *testing.T) {
 	maxWait := 10 * time.Millisecond
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	api := slack.New("ABCDEFG")
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
@@ -43,7 +43,7 @@ func TestRTMPing(t *testing.T) {
 	maxWait := 45 * time.Second
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	api := slack.New("ABCDEFG")
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
@@ -71,7 +71,7 @@ func TestRTMDirectMessage(t *testing.T) {
 	maxWait := 5 * time.Second
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	api := slack.New("ABCDEFG")
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
@@ -100,7 +100,7 @@ func TestRTMChannelMessage(t *testing.T) {
 	maxWait := 5 * time.Second
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	api := slack.New("ABCDEFG")
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()

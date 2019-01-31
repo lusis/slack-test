@@ -14,7 +14,7 @@ import (
 func TestGlobalMessageHandler(t *testing.T) {
 	s := slacktest.NewTestServer()
 	s.SetBotName("TestSlackBot")
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	go s.Start()
 	bot := slackbot.New("ABCDEFG")
 	configureBot(bot)
@@ -28,7 +28,7 @@ func TestGlobalMessageHandler(t *testing.T) {
 func TestHelloMessageHandler(t *testing.T) {
 	s := slacktest.NewTestServer()
 	s.SetBotName("foobot")
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	go s.Start()
 	bot := slackbot.New("ABCDEFG")
 	configureBot(bot)
@@ -42,7 +42,7 @@ func TestHelloMessageHandler(t *testing.T) {
 func TestDirectMessageHandler(t *testing.T) {
 	s := slacktest.NewTestServer()
 	s.SetBotName("foobot")
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	go s.Start()
 	bot := slackbot.New("ABCDEFG")
 	configureBot(bot)
@@ -55,7 +55,7 @@ func TestDirectMessageHandler(t *testing.T) {
 
 func TestPostMessageHandler(t *testing.T) {
 	s := slacktest.NewTestServer()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	go s.Start()
 	bot := slackbot.New("ABCDEFG")
 	configureBot(bot)
@@ -75,7 +75,7 @@ func TestPostMessageHandler(t *testing.T) {
 
 func TestPostAttachmentHandler(t *testing.T) {
 	s := slacktest.NewTestServer()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	go s.Start()
 	bot := slackbot.New("ABCDEFG")
 	configureBot(bot)
@@ -97,7 +97,7 @@ func TestPostAttachmentHandler(t *testing.T) {
 
 func TestChannelJoinHandler(t *testing.T) {
 	s := slacktest.NewTestServer()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	go s.Start()
 	bot := slackbot.New("ABCDEFG")
 	configureBot(bot)
@@ -120,7 +120,7 @@ func TestChannelJoinHandler(t *testing.T) {
 
 func TestChannelJoinHandlerGroup(t *testing.T) {
 	s := slacktest.NewTestServer()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	go s.Start()
 	bot := slackbot.New("ABCDEFG")
 	configureBot(bot)

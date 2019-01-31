@@ -77,5 +77,5 @@ type Server struct {
 
 type fullInfoSlackResponse struct {
 	slack.Info
-	slack.WebResponse
+	slack.SlackResponse
 }

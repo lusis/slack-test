@@ -1,5 +1,12 @@
 # slacktest
 
+## Deprecation notice
+https://github.com/nlopes/slack has pulled in this repository and that's really for the best since it brings it closer to the code it's testing. Please use the library from here:
+
+https://github.com/nlopes/slack/tree/master/slacktest
+
+I'm honored that they did this and very sorry it took so long for me to realize that was the case.
+
 [![Build Status](https://travis-ci.org/lusis/slack-test.svg?branch=master)](https://travis-ci.org/lusis/slack-test)
 
 This is a very basic golang library for testing your slack RTM chatbots

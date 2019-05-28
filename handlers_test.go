@@ -10,9 +10,9 @@ import (
 func TestPostMessageHandler(t *testing.T) {
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	client := slack.New("ABCDEFG")
-	channel, tstamp, err := client.PostMessage("foo", t.Name(), slack.PostMessageParameters{})
+	channel, tstamp, err := client.PostMessage("foo")
 	assert.NoError(t, err, "should not error out")
 	assert.Equal(t, "foo", channel, "channel should be correct")
 	assert.NotEmpty(t, tstamp, "timestamp should not be empty")
@@ -21,7 +21,7 @@ func TestPostMessageHandler(t *testing.T) {
 func TestServerListChannels(t *testing.T) {
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	client := slack.New("ABCDEFG")
 	channels, err := client.GetChannels(true)
 	assert.NoError(t, err)
@@ -36,7 +36,7 @@ func TestServerListChannels(t *testing.T) {
 func TestUserInfoHandler(t *testing.T) {
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	client := slack.New("ABCDEFG")
 	user, err := client.GetUserInfo("123456")
 	assert.NoError(t, err)
@@ -48,7 +48,7 @@ func TestUserInfoHandler(t *testing.T) {
 func TestBotInfoHandler(t *testing.T) {
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	client := slack.New("ABCDEFG")
 	bot, err := client.GetBotInfo(s.BotID)
 	assert.NoError(t, err)
@@ -60,7 +60,7 @@ func TestBotInfoHandler(t *testing.T) {
 func TestListGroupsHandler(t *testing.T) {
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	client := slack.New("ABCDEFG")
 	groups, err := client.GetGroups(true)
 	assert.NoError(t, err)
@@ -76,7 +76,7 @@ func TestListGroupsHandler(t *testing.T) {
 func TestListChannelsHandler(t *testing.T) {
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	client := slack.New("ABCDEFG")
 	channels, err := client.GetChannels(true)
 	assert.NoError(t, err)

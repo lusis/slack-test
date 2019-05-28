@@ -30,7 +30,7 @@ var defaultBotInfo = &slack.UserDetails{
 	Prefs:          slack.UserPrefs{},
 }
 
-var okWebResponse = slack.WebResponse{
+var okSlackResponse = slack.SlackResponse{
 	Ok: true,
 }
 

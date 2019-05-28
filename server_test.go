@@ -46,7 +46,7 @@ func TestServerSendMessageToBot(t *testing.T) {
 func TestBotDirectMessageBotHandler(t *testing.T) {
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	s.SendDirectMessageToBot(t.Name())
 	expectedMsg := fmt.Sprintf(t.Name())
 	time.Sleep(2)
@@ -58,7 +58,7 @@ func TestGetSeenOutboundMessages(t *testing.T) {
 	maxWait := 5 * time.Second
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	s.SendMessageToChannel("foo", "should see this message")
 	time.Sleep(maxWait)
 	seenOutbound := s.GetSeenOutboundMessages()
@@ -80,7 +80,7 @@ func TestGetSeenInboundMessages(t *testing.T) {
 	maxWait := 5 * time.Second
 	s := NewTestServer()
 	go s.Start()
-	slack.SLACK_API = s.GetAPIURL()
+	slack.APIURL = s.GetAPIURL()
 	api := slack.New("ABCDEFG")
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()

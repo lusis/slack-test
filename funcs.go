@@ -109,7 +109,7 @@ func generateRTMInfo(ctx context.Context, wsurl string) *fullInfoSlackResponse {
 	rtmInfo.User.Name = BotNameFromContext(ctx)
 	return &fullInfoSlackResponse{
 		rtmInfo,
-		okWebResponse,
+		okSlackResponse,
 	}
 }
 

@@ -57,7 +57,7 @@ func main() {
     // Set a custom name for our bot
     s.SetBotName("MyBotName")
     // ensure that anything using the slack api library uses our custom server
-    slack.SLACK_API = "http://" + s.ServerAddr + "/"
+    slack.APIURL = "http://" + s.ServerAddr + "/"
     // start the test server
     go s.Start()
     // create a new slackbot. Token is irrelevant here
@@ -129,7 +129,7 @@ func TestRTMDirectMessage(t *testing.T) {
     s := NewTestServer()
     go s.Start()
     // set our slack API to the mock server
-    slack.SLACK_API = s.GetAPIURL()
+    slack.APIURL = s.GetAPIURL()
     api := slack.New("ABCDEFG")
     // rtm instance
     rtm := api.NewRTM()

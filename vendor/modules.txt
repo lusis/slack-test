@@ -1,0 +1,15 @@
+# github.com/davecgh/go-spew v1.1.0
+github.com/davecgh/go-spew/spew
+# github.com/gorilla/websocket v1.2.0
+github.com/gorilla/websocket
+# github.com/lusis/go-slackbot v0.0.0-20180109004912-60d1832022ca
+github.com/lusis/go-slackbot
+# github.com/nlopes/slack v0.5.0
+github.com/nlopes/slack
+github.com/nlopes/slack/slackutilsx
+# github.com/pkg/errors v0.8.1
+github.com/pkg/errors
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/stretchr/testify v1.2.0
+github.com/stretchr/testify/assert
